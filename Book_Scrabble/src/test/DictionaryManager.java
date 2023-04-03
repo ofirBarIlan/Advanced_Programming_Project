@@ -7,10 +7,14 @@ public class DictionaryManager {
     //Hash-map of strings to dictionaries
     private HashMap<String, Dictionary> dictionaries;
 
+    //Singleton
+    private static class DictionaryManagerHolder {
+        private static DictionaryManager instance = new DictionaryManager();
+    }
+
     //Constructor
     private DictionaryManager() {
         dictionaries = new HashMap<String, Dictionary>();
-
     }
 
 
@@ -62,6 +66,18 @@ public class DictionaryManager {
         }
 
         return found;
+    }
+
+
+    //getSize method - returns the number of entries in the dictionary
+    public int getSize() {
+        return dictionaries.size();//TODO: understand what this method should return
+    }
+
+
+    //get method - returns the instance of the dictionary manager
+    public static DictionaryManager get() {
+        return DictionaryManagerHolder.instance;
     }
 
 

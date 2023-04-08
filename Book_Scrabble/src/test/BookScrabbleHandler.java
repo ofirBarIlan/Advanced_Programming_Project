@@ -1,14 +1,53 @@
 package test;
 
-public class BookScrabbleHandler {
-    //clientHandler
-    ClientHandler clientHandler;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.Scanner;
 
-    public BookScrabbleHandler(ClientHandler clientHandler) {
-        this.clientHandler = clientHandler;
+public class BookScrabbleHandler implements ClientHandler{
+
+    //reads the firs line and parse it.
+    @Override
+    public void handleClient(InputStream inFromClient, OutputStream outToClient) {
+        
+        Scanner in = new Scanner(inFromClient);
+        PrintWriter out = new PrintWriter(outToClient);
+        
+        String line = in.nextLine();
+        String[] args = line.split(",");
+
+        String[] booksAndWord = new String[args.length - 1];
+        //get all the args except the first one
+        for (int i = 1; i < args.length; i++) {
+            booksAndWord[i - 1] = args[i];
+        }
+        
+        if (args[0].equals("Q")) {
+            boolean found = DictionaryManager.get().query(booksAndWord);
+            if (found) {
+                out.println("true");
+            } else {
+                out.println("false");
+            }
+        } else if (args[0].equals("C")) {
+            boolean found = DictionaryManager.get().challenge(booksAndWord);
+            if (found) {
+                out.println("true");
+            } else {
+                out.println("false");
+            }
+        }
+        
+        out.flush();
+        in.close();
+        out.close();
+        
     }
 
-    public void handleClient(InputStream inFromClient, OutputStream outToClient) {
-        clientHandler.handleClient(inFromClient, outToClient);
+    @Override
+    public void close() {
+        // TODO Auto-generated method stub
+        
     }
 }

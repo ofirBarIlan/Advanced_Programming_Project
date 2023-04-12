@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class BookScrabbleHandler implements ClientHandler{
 
-    //reads the firs line and parse it.
+    //reads the first line and parses it.
     @Override
     public void handleClient(InputStream inFromClient, OutputStream outToClient) {
         

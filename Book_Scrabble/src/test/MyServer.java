@@ -100,4 +100,8 @@ public class MyServer {
 		stop=true;		
 	}
 
+	public void notifyGuests(String message) {
+		// TODO: save a list of all the clients and send them the message
+	}
+
 }

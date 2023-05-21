@@ -1,2 +1,0 @@
-module Book_Scrabble {
-}

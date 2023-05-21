@@ -1,16 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TextField?>
+<?import com.example.BoardDisplayer?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.PrimaryController">
-   <children>
-      <Label text="Primary View" />
-      <Button fx:id="primaryButton" text="Switch to Secondary View" onAction="#switchToSecondary"/>
-   </children>
-   <padding>
-      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-   </padding>
-</VBox>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="645.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.PrimaryController">
+    <center>
+    </center>
+   <top>
+         <VBox BorderPane.alignment="CENTER">
+             <MenuBar VBox.vgrow="NEVER">
+                 <menus>
+                     <Menu mnemonicParsing="false" text="File">
+                         <items>
+                             <MenuItem mnemonicParsing="false" text="Close" />
+                         </items>
+                     </Menu>
+                     <Menu mnemonicParsing="false" text="Edit">
+                         <items>
+                             <MenuItem mnemonicParsing="false" text="Delete" />
+                         </items>
+                     </Menu>
+                     <Menu mnemonicParsing="false" text="Help">
+                         <items>
+                             <MenuItem mnemonicParsing="false" text="About" />
+                         </items>
+                     </Menu>
+                 </menus>
+             </MenuBar>
+             <HBox>
+            <VBox prefHeight="200.0" prefWidth="100.0">
+               <children>
+                   <!-- added changed name + lable of score-->
+                       <Label fx:id="scoreTitle" alignment="CENTER" text="Score is: " /> 
+                       <Label fx:id="scoreLabel" alignment="CENTER" text="0" />
+                       <BoardDisplayer fx:id="boardDisplayer" height="400" width="500" BorderPane.alignment="CENTER" />
+               </children>
+            </VBox>
+               <VBox alignment="TOP_RIGHT" prefHeight="92.0" prefWidth="130.0" spacing="10" translateY="20">
+                  <Label fx:id="spacingLabel" alignment="CENTER" text="" />
+                  <Label fx:id="directionLabel" alignment="TOP_LEFT" prefHeight="17.0" prefWidth="130.0" text="Enter direction" />
+                  <TextField fx:id="direction" />
+                  <Label fx:id="enterWordLabel" alignment="TOP_LEFT" prefHeight="17.0" prefWidth="132.0" text="Enter word" />
+                  <TextField fx:id="word" />
+                  <Button fx:id="sendButton" text="Send" />
+                  <Button fx:id="primaryButton" text="Switch to Secondary View" onAction="#switchToSecondary"/>
+  
+               </VBox>
+             </HBox>
+
+             </VBox>
+           
+   </top>
+</BorderPane>

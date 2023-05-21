@@ -91,6 +91,7 @@ public class ViewModel extends Observable implements Observer{
     private void sendData(Boolean newval){
         if(newval==true && (getDirection().equals("down") || getDirection().equals("up") || getDirection().equals("right"))){
         int loc[] = {rowToSend, colToSend};
+        System.out.println(wordToSend + " " + directionToSend + " " + loc[0] + " " + loc[1]);
         isValid = m.tryWordVM(wordToSend, directionToSend, loc);
         if(isValid){
             pc.setScore(m.getScore());

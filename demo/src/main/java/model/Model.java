@@ -123,13 +123,13 @@ public class Model extends Observable{
             return false;
         }
 
-        // Connect to the server
+        // Connect to the host server
         try{
             this.socket=new Socket("localhost", port);
             this.outToServer=new PrintWriter(socket.getOutputStream());
             this.inFromServer=new Scanner(socket.getInputStream());
         }catch (Exception e){
-            System.out.println("Exception was thrown, could not connect to the host server");
+            System.out.println("joinGameAsGuest: could not connect to the host server");
         }
 
         // Send Connect request to the host, with the room number
@@ -187,11 +187,30 @@ public class Model extends Observable{
             return tryWordAsGuest(word, dir, position, me);
         }
     }
+    
+    public void giveUpVM(){
+        if(isHost){
+            giveUp(me);
+        }
+        else{
+            giveUpAsGuest(me);
+        }
+    }
+
+    public boolean challengeVM(String word){
+        if(isHost){
+            return challenge(word, me);
+        }
+        else{
+            return challengeAsGuest(word, me);
+        }
+    }
+
     // Create function tryWord here. This function will take in a word (string), a direction (boolean), and a position ((int, int)) and return a boolean.
     // This function will check if the word is in the dictionary and if it is, it will check if the word can be placed in the board at the given position and direction.
     // If the word can be placed, the function will return true. Otherwise, it will return false.
     public boolean tryWord(String word, boolean direction, int[] position, String name){
-        System.out.println("start tryWord" + word);
+        System.out.println("start tryWord " + word);
        // Check if it is the player's turn
         if(!name.equals(players.get(curPlayer))){
             System.out.println("Not the player's turn");
@@ -201,11 +220,16 @@ public class Model extends Observable{
         Tile[] tiles = new Tile[word.length()];
         for(int i=0; i<word.length(); i++){
             System.out.println(word.charAt(i));
-            tiles[i] = bag.getTile(word.charAt(i));
+            if (word.charAt(i) == '_') {
+                tiles[i] = null;
+            }
+            else{
+                tiles[i] = bag.getTile(word.charAt(i));
+            }
         }
         Word w = new Word(tiles, position[0], position[1], !direction);
         scoreCalculated = board.tryPlaceWord(w);
-        if(scoreCalculated!=0){
+        if(scoreCalculated>0){
             curPlayer = (curPlayer + 1) % players.size();
             return true;
         }
@@ -245,11 +269,8 @@ public class Model extends Observable{
         assert !isHost;
         // Send the word, direction, and position to the server
         String dir = direction ? "Down" : "Right";
-        outToServer.println("TryWord,"+word+","+dir+","+position[0]+","+position[1]+","+name);
-        outToServer.flush();
-
-        // Get the response from the server
-        String response=inFromServer.next();
+        // Send the word to the server and get the response
+        String response = sendOnPort("TryWord,"+word+","+dir+","+position[0]+","+position[1]+","+name, 6100);
 
         // Parse the response
         Boolean result = Boolean.parseBoolean(response);
@@ -286,5 +307,22 @@ public class Model extends Observable{
     public int getScore() {
         return scoreCalculated;
     }
-        
+   
+    public String sendOnPort(String message, int port){
+        try{
+            // Socket socket=new Socket("localhost", port);
+            // PrintWriter outToServer=new PrintWriter(socket.getOutputStream());
+            // Scanner inFromServer=new Scanner(socket.getInputStream());
+            outToServer.println(message);
+            outToServer.flush();
+            String response=inFromServer.next();
+            // inFromServer.close();
+            // outToServer.close();
+            // socket.close();
+            return response;
+        }catch (Exception e){
+            System.out.println("sendOnPort exception");
+        }
+        return null;
+    }
 }

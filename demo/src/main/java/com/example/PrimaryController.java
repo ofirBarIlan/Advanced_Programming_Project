@@ -154,10 +154,11 @@ public class PrimaryController extends Observable implements Initializable, Obse
             String directionValue = direction.getText();
 
             for (int i = 0; i < wordValue.length(); i++) {
-                char letter = Character.toLowerCase(wordValue.charAt(i));
-
-                // put each letter on the board
-                boardData[row.get()][col.get()] = letter - 'a' + 1;
+                if (wordValue.charAt(i) != '_') {
+                    char letter = Character.toLowerCase(wordValue.charAt(i));
+                    // put each letter on the board
+                    boardData[row.get()][col.get()] = letter - 'a' + 1;
+                }
                 if(directionValue.equalsIgnoreCase("right")){
                     col.set(col.get() + 1);
                 }

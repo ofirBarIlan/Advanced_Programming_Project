@@ -15,15 +15,10 @@ public class Board {
 	private Socket socket;
 	private PrintWriter outToServer;
 	private Scanner inFromServer;
+	int portToServer;
 	
 	public Board(int portToServer) {
-		try{
-            this.socket=new Socket("localhost", portToServer);
-            this.outToServer=new PrintWriter(socket.getOutputStream());
-            this.inFromServer=new Scanner(socket.getInputStream());
-        }catch (Exception e){
-            System.out.println("Exception was thrown");
-        }
+		this.portToServer = portToServer;
 
 		for(int i = 0; i<wordMult.length; i++) {
 			for(int j=0; j<wordMult.length; j++) {
@@ -184,12 +179,19 @@ public class Board {
 	}
 	
 	public boolean dictionaryLegal(Word w) {
+		try{
+            this.socket=new Socket("localhost", portToServer);
+            this.outToServer=new PrintWriter(socket.getOutputStream());
+            this.inFromServer=new Scanner(socket.getInputStream());
+        }catch (Exception e){
+            System.out.println("dictionaryLegal: Could not connect to server");
+        }
 		String word="";
 		for(Tile t: w.getTiles())
 		{
 			word=word+t.letter;
 		}
-		System.out.println("Sending to server");
+		System.out.println("Sending to server "+word);
 		// Check if the word is in the dictionary, using the server
         String books = "t1.txt";
         outToServer.println("Q,"+books+","+word);
@@ -364,7 +366,6 @@ public class Board {
 		System.out.println("start tryPlaceWord");
 		for(int i = 0; i<w.getTiles().length; i++) {
 			if(w.getTiles()[i]==null) {
-				System.out.println("yanai is wrong");
 				if(w.getVertical()) {
 					if(board[w.getRow()+i][w.getCol()]==null) {
 						return 0;

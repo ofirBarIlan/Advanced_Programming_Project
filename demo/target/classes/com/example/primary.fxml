@@ -11,6 +11,8 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.TextField?>
 <?import com.example.BoardDisplayer?>
+<?import javafx.geometry.Insets?>
+
 
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="645.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.PrimaryController">
@@ -40,9 +42,20 @@
              <HBox>
             <VBox prefHeight="200.0" prefWidth="100.0">
                <children>
-                   <!-- added changed name + lable of score-->
-                       <Label fx:id="scoreTitle" alignment="CENTER" text="Score is: " /> 
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                             <Label fx:id="scoreTitle" alignment="CENTER" text="Score is: " />
+                     </children>
+                  </HBox> 
                        <Label fx:id="scoreLabel" alignment="CENTER" text="0" />
+                  <Label fx:id="instructionLabel" alignment="TOP_LEFT" prefHeight="17.0" prefWidth="437.0" text="Click on a tile to choose where your word starts">
+                     <padding>
+                        <Insets left="20.0" />
+                     </padding>
+                     <VBox.margin>
+                        <Insets left="50.0" />
+                     </VBox.margin>
+                  </Label>
                        <BoardDisplayer fx:id="boardDisplayer" height="400" width="500" BorderPane.alignment="CENTER" />
                </children>
             </VBox>
@@ -53,7 +66,7 @@
                   <Label fx:id="enterWordLabel" alignment="TOP_LEFT" prefHeight="17.0" prefWidth="132.0" text="Enter word" />
                   <TextField fx:id="word" />
                   <Button fx:id="sendButton" text="Send" />
-                  <Button fx:id="primaryButton" text="Switch to Secondary View" onAction="#switchToSecondary"/>
+               <Button fx:id="challengeButton" mnemonicParsing="false" text="Challenge!" />
   
                </VBox>
              </HBox>

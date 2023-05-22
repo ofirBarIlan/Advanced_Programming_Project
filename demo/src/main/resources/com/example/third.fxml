@@ -6,6 +6,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ThirdController">
     <center>
@@ -15,9 +16,32 @@
                 <TextField fx:id="nameTextField" promptText="Name" />
                 <Button fx:id="guestButton" text="Enter As Guest" onAction="#switchToSecondaryAsGuest" />
                 <Button fx:id="hostButton" text="Enter As Host" onAction="#switchToSecondaryAsHost" />
-                <Label fx:id="roomNumberLabel" text="Enter room number" visible="false" />
-                <TextField fx:id="roomNumberTextField" promptText="Room Number" visible="false" />
-                <Label fx:id="errorLabel" text="Invalid room number" visible="false" />
+                <HBox>
+                    <children>
+                        <Label fx:id="roomNumberLabel" text="Enter room number" visible="false" />
+                        <TextField fx:id="roomNumberTextField" promptText="Room Number" visible="false" />
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" />
+                    </padding>
+                </HBox>
+                <HBox>
+                    <children>
+                        <Label fx:id="portNumberLabel" text="Enter port number" visible="false" />
+                        <TextField fx:id="portNumberTextField" promptText="Port Number" visible="false" />
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" />
+                    </padding>
+                </HBox>
+                <HBox>
+                <children>
+                        <Label fx:id="errorLabel" visible="false" />
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" />
+                    </padding>
+                </HBox>
             </children>
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

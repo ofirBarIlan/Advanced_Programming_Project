@@ -78,6 +78,10 @@ public class PrimaryController extends Observable implements Initializable, Obse
     TextField word;
     @FXML
     Button sendButton;
+    @FXML
+    Button challengeButton;
+    @FXML 
+    Label instructionLabel;
     
     IntegerProperty row;
     IntegerProperty col;
@@ -112,16 +116,16 @@ public class PrimaryController extends Observable implements Initializable, Obse
             } 
          };  
 
+        // Set font and size of text
         Font customFont = new Font("Arial", 20);
         scoreTitle.setFont(customFont);
+        scoreLabel.setFont(customFont);
         spacingLabel.setFont(customFont);
+
         customFont = new Font("Arial", 14);
         directionLabel.setFont(customFont);
         enterWordLabel.setFont(customFont);
-
-        customFont = new Font("Arial", 20);
-        scoreLabel.setFont(customFont);
-        
+        instructionLabel.setFont(customFont);        
         
         boardDisplayer.addEventFilter(MouseEvent.MOUSE_CLICKED, eventHandler);
         
@@ -169,8 +173,7 @@ public class PrimaryController extends Observable implements Initializable, Obse
                     row.set(row.get() - 1);
                 }
             }
-            boardDisplayer.setBoardData(boardData);
-        
+            boardDisplayer.setBoardData(boardData);       
         
         
     }

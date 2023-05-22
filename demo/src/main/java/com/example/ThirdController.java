@@ -25,16 +25,17 @@ public class ThirdController {
     private Button hostButton;
     @FXML
     private Label errorLabel;
+    @FXML
+    private Label portNumberLabel;
+    @FXML
+    private TextField portNumberTextField;
 
     public void init(ViewModel vm) {
         this.vm = vm;
         // Bind the disable property of the buttons to the empty property of the nameTextField and roomNumberTextField
         guestButton.disableProperty().bind(nameTextField.textProperty().isEmpty());
         hostButton.disableProperty().bind(nameTextField.textProperty().isEmpty());
-        
-        // Hide the error label initially
-        errorLabel.setVisible(false);
-       
+               
     }
 
     @FXML
@@ -47,11 +48,17 @@ public class ThirdController {
 
     @FXML
     private void switchToSecondaryAsGuest() throws IOException {
-        roomNumberLabel.setVisible(true); // Show the room number label
-        roomNumberTextField.setVisible(true); // Show the room number text field
+        // Show room number label+text field
+        roomNumberLabel.setVisible(true); 
+        roomNumberTextField.setVisible(true);
+
+        // Show port number label+text field
+        portNumberLabel.setVisible(true);
+        portNumberTextField.setVisible(true);
 
         String name = nameTextField.getText();
         String roomNum = roomNumberTextField.getText();
+        String portNum = portNumberTextField.getText();
         
         // Check if the room number is valid (not empty and numeric)
         if (roomNum.isEmpty()) {
@@ -63,14 +70,33 @@ public class ThirdController {
             errorLabel.setVisible(true);
             return;
         }
+        // Check if the port number is valid (not empty and numeric)
+        else if (portNum.isEmpty()) {
+            errorLabel.setText("Empty port number");
+            errorLabel.setVisible(true);
+            return;
+        } else if (!portNum.matches("\\d+")) {
+            errorLabel.setText("Port must be a valid number");
+            errorLabel.setVisible(true);
+            return;
+        }
+        
         
         errorLabel.setVisible(false);
         
         // Join the room
         name = nameTextField.getText();
-        vm.joinRoomFromModel(Integer.parseInt(roomNum), 6100, name);
-        App.setRoot("secondary");
-        App.stage.setScene(App.scene2);
+        if(vm.joinRoomFromModel(Integer.parseInt(roomNum), Integer.parseInt(portNumberTextField.getText()), name)){
+            App.setRoot("secondary");
+            App.stage.setScene(App.scene2);
+        }
+        else{
+            errorLabel.setText("Invalid data, try again");
+            errorLabel.setVisible(true);
+        }
+
+        
 
     }
+
 }

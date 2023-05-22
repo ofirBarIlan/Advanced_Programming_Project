@@ -28,9 +28,11 @@ public class ViewModel extends Observable implements Observer{
     public IntegerProperty row, col;
     public StringProperty word, direction, scoreLabel;
     public BooleanProperty sendButton;
-    public boolean isValid;
+    public int isValid; // 1= valid, 2=Out of board, 3=...
     int rowToSend, colToSend;
     String wordToSend, directionToSend;
+
+    int roomNum, port;
     
     public ViewModel(Model m, PrimaryController pc, SecondaryController sc, ThirdController tc){
         this.m=m;
@@ -44,12 +46,12 @@ public class ViewModel extends Observable implements Observer{
         col = new SimpleIntegerProperty();
         word = new SimpleStringProperty();
         sendButton = new SimpleBooleanProperty();
-
         scoreLabel = new SimpleStringProperty();
-        isValid = false;
+
+        isValid = 1;
         
        
-        //viewmodel to model        
+        //viewmodel-game to model        
         direction.addListener((obs,oldval,newval) -> setDirection((String)newval));
         row.addListener((obs,oldval,newval) -> setRow((int)newval));
         col.addListener((obs,oldval,newval) -> setCol((int)newval));
@@ -72,22 +74,20 @@ public class ViewModel extends Observable implements Observer{
 
     private void setDirection(String newval) {
         directionToSend = newval;
-    }
-    public void startRoomFromModel(String name) {
-        m.startRoom(name);
-    }
-    public void joinRoomFromModel(int num, int port, String name) {
-        if(m.joinGameAsGuest(num, port, name)){
-            
-        }
-        else{
-            System.exit(1);
-        }
-    }
+    }    
 
     private String getDirection() {
         return this.directionToSend.toLowerCase() ;
     } 
+
+    // from opening page - thirdController
+    public void startRoomFromModel(String name) {
+        m.startRoom(name);
+    }
+    public boolean joinRoomFromModel(int roomNum, int port, String name) {
+        return m.joinGameAsGuest(roomNum, port, name);
+        //return true; // for checking
+    }
 
     private void sendData(Boolean newval){
         if(newval==true && (getDirection().equals("down") || getDirection().equals("up") || getDirection().equals("right"))){
@@ -144,8 +144,8 @@ public class ViewModel extends Observable implements Observer{
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-    
+    public void update(Observable o, Object arg) { // gets word, direction , position
+        
     }
 
 }

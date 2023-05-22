@@ -15,6 +15,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import model.ErrorType;
 import model.Model;
 import model.Model_Stub;
 
@@ -92,11 +93,48 @@ public class ViewModel extends Observable implements Observer{
         if(newval==true && (getDirection().equals("down") || getDirection().equals("up") || getDirection().equals("right"))){
         int loc[] = {rowToSend, colToSend};
         System.out.println(wordToSend + " " + directionToSend + " " + loc[0] + " " + loc[1]);
-        isValid = m.tryWordVM(wordToSend, directionToSend, loc);
-        if(isValid){
+        ErrorType result = m.tryWordVM(wordToSend, directionToSend, loc);
+        if(result == ErrorType.SUCCESS){
             pc.setScore(m.getScore());
             scoreLabel.set(String.valueOf(m.getScore()));
             pc.updateBoard();
+        }
+        else if (result==ErrorType.NOT_A_WORD)
+        {
+            // add text to label
+        }
+        else if (result==ErrorType.OUT_OF_BOUNDS)
+        {
+            // add text to label
+        }
+        else if (result==ErrorType.DID_NOT_USE_EXISTING_LETTERS)
+        {
+            // add text to label
+        }
+        else if (result==ErrorType.OVERRODE_EXISTING_LETTERS)
+        {
+            // add text to label
+        }
+        else if (result==ErrorType.DO_NOT_HAVE_LETTERS)
+        {
+            // add text to label
+        }
+        else if (result==ErrorType.NOT_IN_CENTER)
+        {
+            // add text to label
+        }
+        else if (result==ErrorType.BAD_LOCATION)
+        {
+            // add text to label
+        }
+        else if (result==ErrorType.NOT_YOUR_TURN)
+        {
+            // add text to label
+        }
+        else if (result==ErrorType.LAST)
+        {
+            // add text to label
+
         }
 
         }

@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import model.ErrorType;
+import model.Model;
+
 public class Board {
 
 	private Tile board[][] = new Tile[15][15];
@@ -16,9 +19,11 @@ public class Board {
 	private PrintWriter outToServer;
 	private Scanner inFromServer;
 	int portToServer;
+	Model host;
 	
-	public Board(int portToServer) {
+	public Board(int portToServer, Model host) {
 		this.portToServer = portToServer;
+		this.host = host;
 
 		for(int i = 0; i<wordMult.length; i++) {
 			for(int j=0; j<wordMult.length; j++) {
@@ -116,23 +121,24 @@ public class Board {
 		int flag = 0;
 		if(w.getVertical()) {
 			if((w.getRow()+w.getTiles().length)>board.length) {	
+				host.setError(ErrorType.OUT_OF_BOUNDS);
 				return false;
 			}
 		}
 		else if(!w.getVertical()) {
-			System.out.println("0");
 			if(w.getCol()+w.getTiles().length>board.length) {
-				System.out.println("1");
+				host.setError(ErrorType.OUT_OF_BOUNDS);
 				return false;
 			}
 		}
 		if(w.getRow()<0 || w.getCol()<0) {
-			System.out.println("2");
+			host.setError(ErrorType.OUT_OF_BOUNDS);
 			return false;
 		}
 		if(w.getVertical()) {
 			for(int i=w.getRow(); i<w.getRow()+w.getTiles().length;i++) {
 				if((board[i][w.getCol()]!=null) && !(w.getTiles()[i-w.getRow()].equals(board[i][w.getCol()]))) {
+					host.setError(ErrorType.OVERRODE_EXISTING_LETTERS);
 					return false;
 				}
 				else if((board[i][w.getCol()]!=null) && (w.getTiles()[i-w.getRow()].equals(board[i][w.getCol()]))) {
@@ -152,7 +158,7 @@ public class Board {
 		else if(!w.getVertical()) {
 			for(int i=w.getCol(); i<w.getCol()+w.getTiles().length;i++) {
 				if((board[w.getRow()][i]!=null) && !(w.getTiles()[i-w.getCol()].equals(board[w.getRow()][i]))) {
-					System.out.println("3");
+					host.setError(ErrorType.OVERRODE_EXISTING_LETTERS);
 					return false;
 				}
 				else if((board[w.getRow()][i]!=null) && (w.getTiles()[i-w.getCol()].equals(board[w.getRow()][i]))) {
@@ -171,10 +177,9 @@ public class Board {
 		}
 		
 		if(flag==0) {
-			System.out.println("4");
+			host.setError(ErrorType.DID_NOT_USE_EXISTING_LETTERS);
 			return false;
 		}
-		System.out.println("5");
 		return true;
 	}
 	
@@ -200,9 +205,12 @@ public class Board {
 
         // Get the response from the server
         String response=inFromServer.next();
-		System.out.println("RSESPONded" + response);
+		System.out.println("RESPONDED " + response);
         // Parse the response
         Boolean result = Boolean.parseBoolean(response);
+		if(!result) {
+			host.setError(ErrorType.NOT_A_WORD);
+		}
 		return result;
 	}
 	
@@ -368,12 +376,14 @@ public class Board {
 			if(w.getTiles()[i]==null) {
 				if(w.getVertical()) {
 					if(board[w.getRow()+i][w.getCol()]==null) {
+						host.setError(ErrorType.BAD_LOCATION);
 						return 0;
 					}
 					w.setTile(i,board[w.getRow()+i][w.getCol()]);
 				}
 				else {
 					if(board[w.getRow()][i+w.getCol()]==null) {
+						host.setError(ErrorType.BAD_LOCATION);
 						return 0;
 					}
 					w.setTile(i, board[w.getRow()][i+w.getCol()]);
@@ -383,12 +393,10 @@ public class Board {
 		}
 			
 		int score = 0;
-		System.out.println("Before board legal");
 		if(!boardLegal(w)) {
 			return 0;
 		}
 		ArrayList<Word> wordArr = getWords(w);
-		System.out.println("board legal");
 		for(int i = 0; i<wordArr.size(); i++) {
 			if(!dictionaryLegal(wordArr.get(i))) {
 				return 0;

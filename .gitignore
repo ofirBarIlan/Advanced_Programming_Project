@@ -26,3 +26,8 @@ s*.txt
 t*.txt
 
 *.txt
+
+
+# Ignore the target directory
+*target/
+

@@ -18,20 +18,25 @@ import javafx.beans.property.StringProperty;
 import model.Model;
 import model.Model_Stub;
 
-// added Observable
+
 public class ViewModel extends Observable implements Observer{
     Model m;
     PrimaryController pc;
     SecondaryController sc;
     ThirdController tc;
+
+    // Binding for primaryController
     public IntegerProperty row, col;
-    public StringProperty word, direction, scoreLabel;
-    public BooleanProperty sendButton;
-    public int isValid; // 1= valid, 2=Out of board, 3=...
+    public StringProperty word, direction, scoreLabel, roomNumLabel, curPlayer;
+    public BooleanProperty sendButton, isMyTurn;
+
     int rowToSend, colToSend;
     String wordToSend, directionToSend;
 
     int roomNum, port;
+
+    // Binding for secondaryController
+    public BooleanProperty isHost;
     
     public ViewModel(Model m, PrimaryController pc, SecondaryController sc, ThirdController tc){
         this.m=m;
@@ -40,15 +45,30 @@ public class ViewModel extends Observable implements Observer{
         this.tc = tc;
         m.addObserver(this);
         pc.addObserver(this);
-        direction = new SimpleStringProperty();
+        direction = new SimpleStringProperty();     // binded to Prim Controller
         row = new SimpleIntegerProperty();
         col = new SimpleIntegerProperty();
         word = new SimpleStringProperty();
-        sendButton = new SimpleBooleanProperty();
-        scoreLabel = new SimpleStringProperty();
+        sendButton = new SimpleBooleanProperty(); 
 
-        isValid = 1;
-        
+        roomNumLabel = new SimpleStringProperty();  // binded to Sec Controller
+        isHost = new SimpleBooleanProperty();       
+
+        scoreLabel = new SimpleStringProperty();        
+        isMyTurn = new SimpleBooleanProperty();
+        curPlayer = new SimpleStringProperty();
+
+
+        //for secondaryController:
+        sendButton = new SimpleBooleanProperty();
+        // Bind from Model - uncomment after there are isMyTurn,curPlayer, totalScore in model
+        // isMyTurn.bind(m.isMyTurn);
+        // curPlayer.bind(m.curPlayer);
+        // scoreLabel.bind(m.totalScore);
+
+        // Bind here isHost - need to change in model isHost to BooleanProperty
+        isHost.set(m.isHost());
+                
        
         //viewmodel-game to model        
         direction.addListener((obs,oldval,newval) -> setDirection((String)newval));
@@ -58,6 +78,12 @@ public class ViewModel extends Observable implements Observer{
         sendButton.addListener((obs,oldval,newval) -> sendData(newval));
        
     }
+
+
+    // Get new score from Model and changes in View
+    public void setScore(String newScore) {
+        scoreLabel.set(newScore);
+    } 
 
     private void setWord(String newval) {
         wordToSend = newval;
@@ -79,21 +105,24 @@ public class ViewModel extends Observable implements Observer{
         return this.directionToSend.toLowerCase() ;
     } 
 
-    // from opening page - thirdController
+
+
+    // from thirdController - starts room and updates the room number
     public void startRoomFromModel(String name) {
-        m.startRoom(name);
+        roomNumLabel.set(String.valueOf(m.startRoom(name)));
+        isHost.set(m.isHost());
+
     }
     public boolean joinRoomFromModel(int roomNum, int port, String name) {
         return m.joinGameAsGuest(roomNum, port, name);
-        //return true; // for checking
     }
 
     private void sendData(Boolean newval){
         if(newval==true && (getDirection().equals("down") || getDirection().equals("up") || getDirection().equals("right"))){
         int loc[] = {rowToSend, colToSend};
         System.out.println(wordToSend + " " + directionToSend + " " + loc[0] + " " + loc[1]);
-        // isValid = m.tryWordVM(wordToSend, directionToSend, loc); //for checking
-        if(isValid == 1){
+        
+        if(m.tryWordVM(wordToSend, directionToSend, loc) ){
             pc.setScore(m.getScore());
             scoreLabel.set(String.valueOf(m.getScore()));
             pc.updateBoard();

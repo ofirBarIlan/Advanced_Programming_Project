@@ -24,7 +24,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 import view_model.ViewModel;
 
-// added observer
+
 public class PrimaryController extends Observable implements Initializable, Observer {
     @FXML
     private void switchToSecondary() throws IOException {
@@ -59,13 +59,12 @@ public class PrimaryController extends Observable implements Initializable, Obse
         {TW,E,E,DL,E,E,E,TW,E,E,E,DL,E,E,TW},
     };
 
-    // int score;
     @FXML
     BoardDisplayer boardDisplayer;
     @FXML
-    Label scoreTitle; //added changed name
+    Label scoreTitle;
     @FXML
-    Label scoreLabel; //added score label
+    Label scoreLabel; 
     @FXML
     Label spacingLabel;
     @FXML
@@ -105,8 +104,9 @@ public class PrimaryController extends Observable implements Initializable, Obse
         vm.row.bind(row);
         vm.sendButton.bind(sendButton.pressedProperty());
         
-
-        //scoreLabel.textProperty().bind(vm.scoreLabel);
+        // Bind with scoreLabel in vm
+        scoreLabel.textProperty().bind(vm.scoreLabel);
+        
 
         EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() { 
             @Override 

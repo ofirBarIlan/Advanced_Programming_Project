@@ -51,12 +51,8 @@ public class GuestHandler implements ClientHandler{
                 int col = Integer.parseInt(args[4]);
                 int[] pos = {row, col};
                 String name = args[5];
-                boolean success = host.tryWord(word, dir, pos, name);
-                if (success) {
-                    out.println("true");
-                } else {
-                    out.println("false");
-                }
+                ErrorType result = host.tryWord(word, dir, pos, name);
+                out.println(result.toString());
             } else if (args[0].equals("Challenge")) {
                 String word = args[1];
                 String name = args[2];

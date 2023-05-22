@@ -30,7 +30,9 @@ public class Model extends Observable{
     Socket socket;
     int roomNumber;
     MyServer hostServer;
-    int scoreCalculated=10;
+    int scoreCalculated;
+    int totalScore=0;
+    ErrorType error;
     boolean isHost = false;
     // Board information
     Board board;
@@ -45,7 +47,7 @@ public class Model extends Observable{
     // Constructor
     public Model(int port){
         
-        board = new Board(port);
+        board = new Board(port, this);
         gameState = GameState.Idle;
         bag = Tile.Bag.getBag();
     }
@@ -172,7 +174,7 @@ public class Model extends Observable{
         return true;
     }
 
-    public boolean tryWordVM(String word, String direction, int[] position){
+    public ErrorType tryWordVM(String word, String direction, int[] position){
         boolean dir=true;
         if(direction.equals("right")){
             dir = true;
@@ -209,12 +211,12 @@ public class Model extends Observable{
     // Create function tryWord here. This function will take in a word (string), a direction (boolean), and a position ((int, int)) and return a boolean.
     // This function will check if the word is in the dictionary and if it is, it will check if the word can be placed in the board at the given position and direction.
     // If the word can be placed, the function will return true. Otherwise, it will return false.
-    public boolean tryWord(String word, boolean direction, int[] position, String name){
+    public ErrorType tryWord(String word, boolean direction, int[] position, String name){
         System.out.println("start tryWord " + word);
        // Check if it is the player's turn
         if(!name.equals(players.get(curPlayer))){
             System.out.println("Not the player's turn");
-            return false;
+            return ErrorType.NOT_YOUR_TURN;
         }
         // Check if the word is board legal
         Tile[] tiles = new Tile[word.length()];
@@ -236,9 +238,9 @@ public class Model extends Observable{
             //     setChanged();
             //     notifyObservers(word+","+direction+","+position[0]+","+position[1]);
             // }
-            return true;
+            return ErrorType.SUCCESS;
         }
-        return false;
+        return error;
     }
 
     public void giveUp(String name){
@@ -270,15 +272,15 @@ public class Model extends Observable{
         return result;
     }
 
-    public boolean tryWordAsGuest(String word, boolean direction, int[] position, String name){
+    public ErrorType tryWordAsGuest(String word, boolean direction, int[] position, String name){
         assert !isHost;
         // Send the word, direction, and position to the server
         String dir = direction ? "Down" : "Right";
         // Send the word to the server and get the response
         String response = sendOnPort("TryWord,"+word+","+dir+","+position[0]+","+position[1]+","+name, 6100);
 
-        // Parse the response
-        Boolean result = Boolean.parseBoolean(response);
+        // Parse the response as ErrorType
+        ErrorType result = ErrorType.valueOf(response);
         return result;
     }
 
@@ -333,5 +335,13 @@ public class Model extends Observable{
 
     public boolean isHost(){
         return isHost;
+    }
+
+    public int getRoomNumber(){
+        return roomNumber;
+    }
+
+    public void setError(ErrorType e) {
+        error = e;
     }
 }

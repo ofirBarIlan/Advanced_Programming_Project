@@ -231,6 +231,11 @@ public class Model extends Observable{
         scoreCalculated = board.tryPlaceWord(w);
         if(scoreCalculated>0){
             curPlayer = (curPlayer + 1) % players.size();
+            // notifyGuests(name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
+            // if (name!=me) {
+            //     setChanged();
+            //     notifyObservers(word+","+direction+","+position[0]+","+position[1]);
+            // }
             return true;
         }
         return false;
@@ -324,5 +329,9 @@ public class Model extends Observable{
             System.out.println("sendOnPort exception");
         }
         return null;
+    }
+
+    public boolean isHost(){
+        return isHost;
     }
 }

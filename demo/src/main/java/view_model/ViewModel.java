@@ -148,4 +148,7 @@ public class ViewModel extends Observable implements Observer{
         
     }
 
+    public void setCurPlayer(String curPlayer, boolean isMyTurn) {
+    }
+
 }

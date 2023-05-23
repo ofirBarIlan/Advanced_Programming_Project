@@ -44,6 +44,21 @@ public class Model extends Observable{
     int curPlayer = 0;
     String me;
 
+    public class Result {
+        public int score;
+        public ErrorType errorType;
+        public Result(String strFormat) {
+            String[] args = strFormat.split(",");
+            this.score = Integer.parseInt(args[0]);
+            this.errorType = ErrorType.values()[Integer.parseInt(args[1])];
+        }
+
+        public Result(int score, ErrorType errorType) {
+            this.score = score;
+            this.errorType = errorType;
+        }
+    }
+
     // Constructor
     public Model(int port){
         
@@ -182,12 +197,17 @@ public class Model extends Observable{
         else if(direction.equals("down")){
             dir = false;
         }
+        Result result;
         if(isHost){
-            return tryWord(word, dir, position, me);
+            result = tryWord(word, dir, position, me);
         }
         else{
-            return tryWordAsGuest(word, dir, position, me);
+            result = tryWordAsGuest(word, dir, position, me);
         }
+        scoreCalculated = result.score;
+        error = result.errorType;
+        totalScore += scoreCalculated;
+        return error;
     }
     
     public void giveUpVM(){
@@ -211,12 +231,12 @@ public class Model extends Observable{
     // Create function tryWord here. This function will take in a word (string), a direction (boolean), and a position ((int, int)) and return a boolean.
     // This function will check if the word is in the dictionary and if it is, it will check if the word can be placed in the board at the given position and direction.
     // If the word can be placed, the function will return true. Otherwise, it will return false.
-    public ErrorType tryWord(String word, boolean direction, int[] position, String name){
+    public Result tryWord(String word, boolean direction, int[] position, String name){
         System.out.println("start tryWord " + word);
        // Check if it is the player's turn
         if(!name.equals(players.get(curPlayer))){
             System.out.println("Not the player's turn");
-            return ErrorType.NOT_YOUR_TURN;
+            return new Result(0, ErrorType.NOT_YOUR_TURN);
         }
         // Check if the word is board legal
         Tile[] tiles = new Tile[word.length()];
@@ -238,9 +258,9 @@ public class Model extends Observable{
             //     setChanged();
             //     notifyObservers(word+","+direction+","+position[0]+","+position[1]);
             // }
-            return ErrorType.SUCCESS;
+            error = ErrorType.SUCCESS;
         }
-        return error;
+        return new Result(scoreCalculated, error);
     }
 
     public void giveUp(String name){
@@ -272,16 +292,15 @@ public class Model extends Observable{
         return result;
     }
 
-    public ErrorType tryWordAsGuest(String word, boolean direction, int[] position, String name){
+    public Result tryWordAsGuest(String word, boolean direction, int[] position, String name){
         assert !isHost;
         // Send the word, direction, and position to the server
         String dir = direction ? "Down" : "Right";
         // Send the word to the server and get the response
         String response = sendOnPort("TryWord,"+word+","+dir+","+position[0]+","+position[1]+","+name, 6100);
 
-        // Parse the response as ErrorType
-        ErrorType result = ErrorType.valueOf(response);
-        return result;
+        // Parse the response as Result
+        return new Result(response);
     }
 
     public void giveUpAsGuest(String name){
@@ -343,5 +362,10 @@ public class Model extends Observable{
 
     public void setError(ErrorType e) {
         error = e;
+    }
+
+    private void nextPlayer() {
+        curPlayer = (curPlayer + 1) % players.size();
+        
     }
 }

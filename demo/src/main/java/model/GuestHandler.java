@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
+import model.Model.Result;
 import test.ClientHandler;
 
 public class GuestHandler implements ClientHandler{
@@ -51,8 +52,8 @@ public class GuestHandler implements ClientHandler{
                 int col = Integer.parseInt(args[4]);
                 int[] pos = {row, col};
                 String name = args[5];
-                ErrorType result = host.tryWord(word, dir, pos, name);
-                out.println(result.toString());
+                Result result = host.tryWord(word, dir, pos, name);
+                out.println(""+result.score + "," + result.errorType.ordinal());
             } else if (args[0].equals("Challenge")) {
                 String word = args[1];
                 String name = args[2];

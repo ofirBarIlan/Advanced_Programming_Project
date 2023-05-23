@@ -102,12 +102,6 @@ public class ViewModel extends Observable implements Observer{
         directionToSend = newval;
     }    
 
-    private String getDirection() {
-        return this.directionToSend.toLowerCase() ;
-    } 
-
-
-
     // from thirdController - starts room and updates the room number
     public void startRoomFromModel(String name) {
         roomNumLabel.set(String.valueOf(m.startRoom(name)));
@@ -119,7 +113,7 @@ public class ViewModel extends Observable implements Observer{
     }
 
     private void sendData(Boolean newval){
-        if(newval==true && (getDirection().equals("down") || getDirection().equals("up") || getDirection().equals("right"))){
+        if(newval==true){
         int loc[] = {rowToSend, colToSend};
         System.out.println(wordToSend + " " + directionToSend + " " + loc[0] + " " + loc[1]);
         ErrorType result = m.tryWordVM(wordToSend, directionToSend, loc);

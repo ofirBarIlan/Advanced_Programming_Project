@@ -12,6 +12,7 @@
 <?import javafx.scene.control.TextField?>
 <?import com.example.BoardDisplayer?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
 
 
 
@@ -62,6 +63,7 @@
                <VBox alignment="TOP_RIGHT" prefHeight="92.0" prefWidth="130.0" spacing="10" translateY="20">
                   <Label fx:id="spacingLabel" alignment="CENTER" text="" />
                   <Label fx:id="directionLabel" alignment="TOP_LEFT" prefHeight="17.0" prefWidth="130.0" text="Enter direction" />
+                  <ComboBox fx:id="directionBox" prefWidth="150.0" promptText="directions" />
                   <TextField fx:id="direction" />
                   <Label fx:id="enterWordLabel" alignment="TOP_LEFT" prefHeight="17.0" prefWidth="132.0" text="Enter word" />
                   <TextField fx:id="word" />

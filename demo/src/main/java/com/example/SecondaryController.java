@@ -17,7 +17,6 @@ import view_model.ViewModel;
 
 public class SecondaryController {
     ViewModel vm;
-    BooleanProperty isHost;
 
     @FXML
     Button startGameButton;
@@ -28,18 +27,15 @@ public class SecondaryController {
     @FXML
     ImageView waitingImage;
     
-    public void init(ViewModel vm) {
+    public void init(ViewModel vm, boolean isHost) {
         this.vm = vm;
-        isHost = new SimpleBooleanProperty();
         
 
         // Bind with roomNumLabel in vm
-        roomNumLabel.textProperty().bind(vm.roomNumLabel);
-        isHost.bind(vm.isHost);
-
-        if(isHost.get()){
-            startGameButton.setVisible(true);
-        }                
+        roomNumLabel.textProperty().bind(vm.roomNumLabel);        
+        startGameButton.managedProperty().bind(startGameButton.visibleProperty());
+        startGameButton.setVisible(false);
+                 
 
         // Check why doesn't work
         try {

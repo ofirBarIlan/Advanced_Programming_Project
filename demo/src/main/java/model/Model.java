@@ -81,7 +81,7 @@ public class Model extends Observable{
             return -1;
         }
         gameState = GameState.WAITING_FOR_PLAYERS;
-
+        
         // Generate a random room number
         int roomNumber = (int)(Math.random() * 100000);
         this.roomNumber = roomNumber;
@@ -209,10 +209,10 @@ public class Model extends Observable{
 
     public ErrorType tryWordVM(String word, String direction, int[] position){
         boolean dir=true;
-        if(direction.equals("right")){
+        if(direction.equals("Right")){
             dir = true;
         }
-        else if(direction.equals("down")){
+        else if(direction.equals("Down")){
             dir = false;
         }
         Result result;
@@ -237,12 +237,60 @@ public class Model extends Observable{
         }
     }
 
-    public boolean challengeVM(String word){
+    public void challengeVM(String word, int row, int col, String direction ){
+        boolean dir =true;
+        if(direction.equals("Right")){
+            dir = true;
+        }
+        else if(direction.equals("Down")){
+            dir = false;
+        }
+
+        char[] charArray = word.toCharArray();
+        for(int i=0; i<word.length(); i++){
+            if (word.charAt(i) == '_') {
+                
+                if(dir){
+                    if(board.getTile()[row][col+i] != null)
+                        charArray[i] = board.getTile()[row][col+i].letter;
+                }
+                else{
+                    if(board.getTile()[row+i][col] != null)
+                        charArray[i] = board.getTile()[row+i][col].letter;
+                }                
+            }
+        }
+        word = new String(charArray);
+
+        Tile[] tiles = new Tile[word.length()];
+        for(int i=0; i<word.length(); i++){
+
+                // Change here to get the tile from array of Tiles that get in the beginning
+                Tile T = bag.getTile(word.charAt(i));
+                if(T != null){
+                    // bag.letterAmounts[word.charAt(i)-'A'] ++;
+                }
+                else{
+                    // board[row][col]
+                }
+                tiles[i] = T;
+            
+        }
+        Word w = new Word(tiles, row, col, dir);
         if(isHost){
-            return challenge(word, me);
+            
+            if (challenge(word, me)){
+                totalScore += board.getScore(w) + 5;
+
+            }
+            else{
+                totalScore-=1000;
+            }
         }
         else{
-            return challengeAsGuest(word, me);
+           if (challengeAsGuest(word, me)){
+                totalScore += board.getScore(w) + 5;
+            }
         }
     }
 
@@ -298,11 +346,15 @@ public class Model extends Observable{
         if(!name.equals(players.get(curPlayerIndex))){
             return false;
         }
+        // get all new words - getWords()
+
+        
         // Send the word to the server
-        outToServer.println("challenge,"+word);
-        outToServer.flush();
+        this.outToServer.println("C,"+word);
+        this.outToServer.flush();
 
         // Get the response from the server
+        
         String response=inFromServer.next();
 
         // Parse the response
@@ -350,7 +402,7 @@ public class Model extends Observable{
     }
 
     public int getScore() {
-        return scoreCalculated;
+        return totalScore;
     }
    
     public String sendOnPort(String message, int port){

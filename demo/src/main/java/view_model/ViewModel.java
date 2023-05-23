@@ -29,7 +29,7 @@ public class ViewModel extends Observable implements Observer{
     // Binding for primaryController
     public IntegerProperty row, col;
     public StringProperty word, direction, scoreLabel, roomNumLabel, curPlayer;
-    public BooleanProperty sendButton, isMyTurn;
+    public BooleanProperty sendButton, isMyTurn, challengeButton;
 
     int rowToSend, colToSend;
     String wordToSend, directionToSend;
@@ -38,6 +38,7 @@ public class ViewModel extends Observable implements Observer{
 
     // Binding for secondaryController
     public BooleanProperty isHost;
+    
     
     public ViewModel(Model m, PrimaryController pc, SecondaryController sc, ThirdController tc){
         this.m=m;
@@ -51,6 +52,7 @@ public class ViewModel extends Observable implements Observer{
         col = new SimpleIntegerProperty();
         word = new SimpleStringProperty();
         sendButton = new SimpleBooleanProperty(); 
+        challengeButton = new SimpleBooleanProperty(); 
 
         roomNumLabel = new SimpleStringProperty();  // binded to Sec Controller
         isHost = new SimpleBooleanProperty();       
@@ -61,7 +63,7 @@ public class ViewModel extends Observable implements Observer{
 
 
         //for secondaryController:
-        sendButton = new SimpleBooleanProperty();
+        
         // Bind from Model - uncomment after there are isMyTurn,curPlayer, totalScore in model
         // isMyTurn.bind(m.isMyTurn);
         // curPlayer.bind(m.curPlayer);
@@ -77,6 +79,7 @@ public class ViewModel extends Observable implements Observer{
         col.addListener((obs,oldval,newval) -> setCol((int)newval));
         word.addListener((obs,oldval,newval) -> setWord((String)newval));
         sendButton.addListener((obs,oldval,newval) -> sendData(newval));
+        
        
     }
 
@@ -104,27 +107,33 @@ public class ViewModel extends Observable implements Observer{
 
     // from thirdController - starts room and updates the room number
     public void startRoomFromModel(String name) {
+        
+        scoreLabel.set(String.valueOf(m.getScore()));
         roomNumLabel.set(String.valueOf(m.startRoom(name)));
         isHost.set(m.isHost());
 
     }
     public boolean joinRoomFromModel(int roomNum, int port, String name) {
+        
+        scoreLabel.set(String.valueOf(m.getScore()));
         return m.joinGameAsGuest(roomNum, port, name);
     }
 
     private void sendData(Boolean newval){
         if(newval==true){
         int loc[] = {rowToSend, colToSend};
-        System.out.println(wordToSend + " " + directionToSend + " " + loc[0] + " " + loc[1]);
-        ErrorType result = m.tryWordVM(wordToSend, directionToSend, loc);
+        System.out.println(wordToSend + " " + direction.getValue() + " " + loc[0] + " " + loc[1]);
+        ErrorType result = m.tryWordVM(wordToSend, direction.getValue(), loc);
+        scoreLabel.set(String.valueOf(m.getScore()));
         if(result == ErrorType.SUCCESS){
-            pc.setScore(m.getScore());
-            scoreLabel.set(String.valueOf(m.getScore()));
+            // pc.setScore(m.getScore());
+            
             pc.updateBoard();
         }
         else if (result==ErrorType.NOT_A_WORD)
         {
-            // add text to label
+            // set visable button to true
+            pc.challengeButton.setVisible(true);
         }
         else if (result==ErrorType.OUT_OF_BOUNDS)
         {
@@ -172,6 +181,14 @@ public class ViewModel extends Observable implements Observer{
     }
 
     public void setCurPlayer(String curPlayer, boolean isMyTurn) {
+    }
+
+
+    public void challengeButton() {
+        
+        m.challengeVM(word.getValue(), row.getValue(), col.getValue(), direction.getValue() );
+        
+        scoreLabel.set(String.valueOf(m.getScore()));
     }
 
 }

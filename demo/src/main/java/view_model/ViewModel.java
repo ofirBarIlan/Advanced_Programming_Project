@@ -191,4 +191,11 @@ public class ViewModel extends Observable implements Observer{
         scoreLabel.set(String.valueOf(m.getScore()));
     }
 
+
+    public void startGame() {
+        if(m.isHost()){
+            m.startGame();
+        }
+    }
+
 }

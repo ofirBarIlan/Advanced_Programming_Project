@@ -18,7 +18,7 @@ public class App extends Application {
     public static Scene scene2;
     public static Scene scene1;
     public static Stage stage;
-    public static SecondaryController sc;
+    
    
     
     @Override
@@ -29,7 +29,7 @@ public class App extends Application {
         ThirdController tc = fxmlLoaderThird.getController();
         FXMLLoader fxmlLoaderSecondary = new FXMLLoader(App.class.getResource("secondary.fxml"));
         scene2 = new Scene(fxmlLoaderSecondary.load(), 640, 480);
-        sc = fxmlLoaderSecondary.getController();
+        SecondaryController sc = fxmlLoaderSecondary.getController();
         FXMLLoader fxmlLoaderPrimary = new FXMLLoader(App.class.getResource("primary.fxml"));
         scene1 = new Scene(fxmlLoaderPrimary.load(), 640, 480);
         PrimaryController pc = fxmlLoaderPrimary.getController();
@@ -38,12 +38,16 @@ public class App extends Application {
         Model m = new Model(6200);
         
         ViewModel vm = new ViewModel(m, pc, sc, tc);
+        if(sc!=null){
+            sc.init(vm,true);
+        }
         if(pc!=null){
             pc.init(vm);
         }
         if(tc!=null){
             tc.init(vm);
         }
+        
     }
 
     static void setRoot(String fxml) throws IOException {

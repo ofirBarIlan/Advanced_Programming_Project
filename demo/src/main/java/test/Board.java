@@ -184,6 +184,7 @@ public class Board {
 	}
 	
 	public boolean dictionaryLegal(Word w) {
+		System.out.println("dictionaryLegal");
 		try{
             this.socket=new Socket("localhost", portToServer);
             this.outToServer=new PrintWriter(socket.getOutputStream());

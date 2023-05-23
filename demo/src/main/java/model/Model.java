@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Scanner;
 import test.*;
@@ -41,8 +43,14 @@ public class Model extends Observable{
 
     // List of all players in the game
     ArrayList<String> players = new ArrayList<String>();
+    // List of tiles for each player's hand
+    ArrayList<Tile> arrayTiles = new ArrayList<Tile>();
+    // Create the dictionary to store player hands
+    Map<String, ArrayList<Tile>> playerHands = new HashMap<>();
+
     int curPlayer = 0;
     String me;
+    private boolean tryWordFlag;
 
     public class Result {
         public int score;
@@ -102,6 +110,22 @@ public class Model extends Observable{
         hostServer.start();
     }
 
+    // playerHands is hashMap of name and Tiles for each player
+    private void initHands(){
+        for (String player : players)
+        {
+            // Initialize player's hand with random Tiles
+            ArrayList<Tile> handTiles = new ArrayList<>();
+            for (int i = 0; i < 98; i++) {
+                handTiles.add(bag.getRand());
+            }
+            
+            // Add the player's hand to the dictionary
+            playerHands.put(player, handTiles);
+            System.out.println(playerHands);
+        }
+    }
+
     // Create function startGame here. (Host)
     public void startGame(){
         assert isHost;
@@ -109,6 +133,8 @@ public class Model extends Observable{
         if(gameState != GameState.WAITING_FOR_START){
             assert false;
         }
+
+        initHands();        
 
         // Set the game state
         gameState = GameState.PLAYING;
@@ -203,8 +229,22 @@ public class Model extends Observable{
         }
         else{
             result = tryWordAsGuest(word, dir, position, me);
-        }
+        }        
+
         scoreCalculated = result.score;
+        if(scoreCalculated>0){
+            for(char c : word.toCharArray()){
+                if(c != '_'){
+                    for(Tile tile : playerHands.get(me)){
+                        if(c == tile.letter){
+                            playerHands.get(me).remove(tile);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         error = result.errorType;
         totalScore += scoreCalculated;
         return error;
@@ -219,6 +259,45 @@ public class Model extends Observable{
         }
     }
 
+    public Tile[] convertStringToTiles(String word, int row, int col, boolean dir ){
+        ArrayList<Tile> convertedTiles = new ArrayList<Tile>();
+        
+        
+        for(int i=0; i<word.length(); i++){
+            boolean flag = false;
+            if (word.charAt(i) == '_') {
+                
+                if(dir){
+                    if(board.getTile()[row][col+i] != null){
+                        convertedTiles.add(board.getTile()[row][col+i]);
+                        flag = true;
+                    }
+                }
+                else{
+                    if(board.getTile()[row+i][col] != null){
+                        convertedTiles.add(board.getTile()[row+i][col]);
+                        flag = true;
+                    }
+                }                                     
+            }
+            else{
+                System.out.println(playerHands);
+                for(Tile tile : playerHands.get(me)){
+                    if(tile.letter == word.charAt(i)){
+                        convertedTiles.add(tile);
+                        flag = true;
+                        break;
+                    }
+                }
+            }
+            if(!flag){
+                tryWordFlag = true;
+            }
+        }
+        Tile[] tilesArray = convertedTiles.toArray(new Tile[convertedTiles.size()]);
+        return tilesArray;
+    }
+
     public void challengeVM(String word, int row, int col, String direction ){
         boolean dir =true;
         if(direction.equals("Right")){
@@ -227,43 +306,14 @@ public class Model extends Observable{
         else if(direction.equals("Down")){
             dir = false;
         }
-
-        char[] charArray = word.toCharArray();
-        for(int i=0; i<word.length(); i++){
-            if (word.charAt(i) == '_') {
-                
-                if(dir){
-                    if(board.getTile()[row][col+i] != null)
-                        charArray[i] = board.getTile()[row][col+i].letter;
-                }
-                else{
-                    if(board.getTile()[row+i][col] != null)
-                        charArray[i] = board.getTile()[row+i][col].letter;
-                }                
-            }
-        }
-        word = new String(charArray);
-
-        Tile[] tiles = new Tile[word.length()];
-        for(int i=0; i<word.length(); i++){
-
-                // Change here to get the tile from array of Tiles that get in the beginning
-                Tile T = bag.getTile(word.charAt(i));
-                if(T != null){
-                    // bag.letterAmounts[word.charAt(i)-'A'] ++;
-                }
-                else{
-                    // board[row][col]
-                }
-                tiles[i] = T;
-            
-        }
+       
+        Tile[] tiles = convertStringToTiles(word, row, col, dir);
+        
         Word w = new Word(tiles, row, col, dir);
         if(isHost){
             
             if (challenge(word, me)){
                 totalScore += board.getScore(w) + 5;
-
             }
             else{
                 totalScore-=1000;
@@ -286,17 +336,14 @@ public class Model extends Observable{
             System.out.println("Not the player's turn");
             return new Result(0, ErrorType.NOT_YOUR_TURN);
         }
-        // Check if the word is board legal
-        Tile[] tiles = new Tile[word.length()];
-        for(int i=0; i<word.length(); i++){
-            System.out.println(word.charAt(i));
-            if (word.charAt(i) == '_') {
-                tiles[i] = null;
-            }
-            else{
-                tiles[i] = bag.getTile(word.charAt(i));
-            }
+
+        tryWordFlag = false;
+
+        Tile[] tiles = convertStringToTiles(word, position[0], position[1], direction);
+        if(tryWordFlag){
+            return new Result(0, ErrorType.DO_NOT_HAVE_LETTERS);
         }
+
         Word w = new Word(tiles, position[0], position[1], !direction);
         scoreCalculated = board.tryPlaceWord(w);
         if(scoreCalculated>0){

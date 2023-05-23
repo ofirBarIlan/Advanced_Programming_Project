@@ -45,7 +45,7 @@ public class ThirdController {
         
         App.setRoot("secondary");
         App.stage.setScene(App.scene2);
-        App.sc.init(this.vm,true);
+        
     }
 
     @FXML
@@ -92,9 +92,9 @@ public class ThirdController {
         name = nameTextField.getText();
         if(vm.joinRoomFromModel(Integer.parseInt(roomNum), Integer.parseInt(portNumberTextField.getText()), name)){
             
+            
             App.setRoot("secondary");
             App.stage.setScene(App.scene2);
-            App.sc.init(this.vm,false);
         }
         else{
             errorLabel.setText("Invalid data, try again");

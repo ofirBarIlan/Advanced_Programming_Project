@@ -5,18 +5,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import view_model.ViewModel;
 
 public class SecondaryController {
-    ViewModel vm;
+    static ViewModel vm;
 
     @FXML
     Button startGameButton;
@@ -29,7 +26,6 @@ public class SecondaryController {
     
     public void init(ViewModel vm, boolean isHost) {
         this.vm = vm;
-        
 
         // Bind with roomNumLabel in vm
         roomNumLabel.textProperty().bind(vm.roomNumLabel);        
@@ -51,6 +47,8 @@ public class SecondaryController {
 
     @FXML
     private void switchToPrimary() throws IOException {
+
+        vm.startGame();
         App.setRoot("primary");
         App.stage.setScene(App.scene1);
     }

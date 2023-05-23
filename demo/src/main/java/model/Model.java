@@ -48,9 +48,14 @@ public class Model extends Observable{
     // Create the dictionary to store player hands
     Map<String, ArrayList<Tile>> playerHands = new HashMap<>();
 
-    int curPlayer = 0;
+    int curPlayerIndex = 0;
+    String curPlayerName;
     String me;
     private boolean tryWordFlag;
+
+
+    private boolean respValid;
+    private String resp;
 
     public class Result {
         public int score;
@@ -171,6 +176,33 @@ public class Model extends Observable{
             this.socket=new Socket("localhost", port);
             this.outToServer=new PrintWriter(socket.getOutputStream());
             this.inFromServer=new Scanner(socket.getInputStream());
+            //Start a thread to listen to the host server
+            Thread t = new Thread(new Runnable(){
+                @Override
+                public void run(){
+                    System.out.println("start listening to the host server");
+                    while(true){
+                        String message = inFromServer.next();
+                        System.out.println("got notifyGuests: "+message);
+                        String[] args = message.split(",");
+                        if(args[0].equals("notifyGuests")){
+                            // TODO
+                        }
+                        else if(args[0].equals("resp")){
+                            // set the response to be all the args except the first one
+                            String response = "";
+                            for(int i=1; i<args.length; i++){
+                                response += args[i];
+                                if(i != args.length-1){
+                                    response += ",";
+                                }
+                            }
+                            setResponse(response);
+                        }
+                    }
+                }
+            });
+            t.start();
         }catch (Exception e){
             System.out.println("joinGameAsGuest: could not connect to the host server");
         }
@@ -181,7 +213,7 @@ public class Model extends Observable{
 
         System.out.println(port);
         // Get the response from the host
-        String response=inFromServer.next();
+        String response=getResponseFromHost();
         System.out.println("test2");
 
         // Parse the response
@@ -194,6 +226,23 @@ public class Model extends Observable{
         }
 
         return result;
+    }
+
+    private void setResponse(String string) {
+        this.resp = string;
+        this.respValid = true;
+    }
+
+    private String getResponseFromHost() {
+        while(!this.respValid){
+            try{
+                Thread.sleep(100);
+            }catch (Exception e){
+                System.out.println("getResponse exception");
+            }
+        }
+        this.respValid = false;
+        return this.resp;
     }
 
     // Create function joinGame here. This function will take in a room number (int) and return a boolean. (Host)
@@ -332,7 +381,7 @@ public class Model extends Observable{
     public Result tryWord(String word, boolean direction, int[] position, String name){
         System.out.println("start tryWord " + word);
        // Check if it is the player's turn
-        if(!name.equals(players.get(curPlayer))){
+        if(!name.equals(players.get(curPlayerIndex))){
             System.out.println("Not the player's turn");
             return new Result(0, ErrorType.NOT_YOUR_TURN);
         }
@@ -347,7 +396,7 @@ public class Model extends Observable{
         Word w = new Word(tiles, position[0], position[1], !direction);
         scoreCalculated = board.tryPlaceWord(w);
         if(scoreCalculated>0){
-            curPlayer = (curPlayer + 1) % players.size();
+            nextPlayer();
             // notifyGuests(name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
             // if (name!=me) {
             //     setChanged();
@@ -355,23 +404,24 @@ public class Model extends Observable{
             // }
             error = ErrorType.SUCCESS;
         }
+        notifyGuests(name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
         return new Result(scoreCalculated, error);
     }
 
     public void giveUp(String name){
         assert isHost;
         // Check if it is the player's turn
-        if(!name.equals(players.get(curPlayer))){
+        if(!name.equals(players.get(curPlayerIndex))){
             assert false;
         }
 
-        curPlayer = (curPlayer + 1) % players.size();
+        nextPlayer();
     }
 
     public boolean challenge(String word, String name){
         assert isHost;
         // Check if it is the player's turn
-        if(!name.equals(players.get(curPlayer))){
+        if(!name.equals(players.get(curPlayerIndex))){
             return false;
         }
         // get all new words - getWords()
@@ -387,7 +437,7 @@ public class Model extends Observable{
 
         // Parse the response
         Boolean result = Boolean.parseBoolean(response);
-        curPlayer = (curPlayer + 1) % players.size();
+        nextPlayer();
         return result;
     }
 
@@ -396,7 +446,9 @@ public class Model extends Observable{
         // Send the word, direction, and position to the server
         String dir = direction ? "Down" : "Right";
         // Send the word to the server and get the response
-        String response = sendOnPort("TryWord,"+word+","+dir+","+position[0]+","+position[1]+","+name, 6100);
+        outToServer.println("TryWord,"+word+","+dir+","+position[0]+","+position[1]+","+name);
+        outToServer.flush();
+        String response=getResponseFromHost();
 
         // Parse the response as Result
         return new Result(response);
@@ -416,7 +468,7 @@ public class Model extends Observable{
         outToServer.flush();
 
         // Get the response from the server
-        String response=inFromServer.next();
+        String response = getResponseFromHost();
 
         // Parse the response
         Boolean result = Boolean.parseBoolean(response);
@@ -435,15 +487,9 @@ public class Model extends Observable{
    
     public String sendOnPort(String message, int port){
         try{
-            // Socket socket=new Socket("localhost", port);
-            // PrintWriter outToServer=new PrintWriter(socket.getOutputStream());
-            // Scanner inFromServer=new Scanner(socket.getInputStream());
             outToServer.println(message);
             outToServer.flush();
             String response=inFromServer.next();
-            // inFromServer.close();
-            // outToServer.close();
-            // socket.close();
             return response;
         }catch (Exception e){
             System.out.println("sendOnPort exception");
@@ -464,7 +510,7 @@ public class Model extends Observable{
     }
 
     private void nextPlayer() {
-        curPlayer = (curPlayer + 1) % players.size();
-        
+        curPlayerIndex = (curPlayerIndex + 1) % players.size();
+        curPlayerName = players.get(curPlayerIndex);
     }
 }

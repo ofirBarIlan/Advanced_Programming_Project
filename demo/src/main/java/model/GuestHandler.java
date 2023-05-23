@@ -41,9 +41,9 @@ public class GuestHandler implements ClientHandler{
                 String name = args[2];
                 boolean success = this.host.joinGame(roomNumber, name);
                 if (success) {
-                    out.println("true");
+                    out.println("resp,true");
                 } else {
-                    out.println("false");
+                    out.println("resp,false");
                 }
             } else if (args[0].equals("TryWord")) {
                 String word = args[1];
@@ -53,15 +53,15 @@ public class GuestHandler implements ClientHandler{
                 int[] pos = {row, col};
                 String name = args[5];
                 Result result = host.tryWord(word, dir, pos, name);
-                out.println(""+result.score + "," + result.errorType.ordinal());
+                out.println("resp,"+result.score + "," + result.errorType.ordinal());
             } else if (args[0].equals("Challenge")) {
                 String word = args[1];
                 String name = args[2];
                 boolean success = host.challenge(word, name);
                 if (success) {
-                    out.println("true");
+                    out.println("resp,true");
                 } else {
-                    out.println("false");
+                    out.println("resp,false");
                 }
             } else if (args[0].equals("giveUp")) {
                 String name = args[1];

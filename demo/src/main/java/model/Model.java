@@ -45,6 +45,10 @@ public class Model extends Observable{
     String curPlayerName;
     String me;
 
+
+    private boolean respValid;
+    private String resp;
+
     public class Result {
         public int score;
         public ErrorType errorType;
@@ -146,10 +150,11 @@ public class Model extends Observable{
             this.socket=new Socket("localhost", port);
             this.outToServer=new PrintWriter(socket.getOutputStream());
             this.inFromServer=new Scanner(socket.getInputStream());
-            // Start a thread to listen to the host server
+            //Start a thread to listen to the host server
             Thread t = new Thread(new Runnable(){
                 @Override
                 public void run(){
+                    System.out.println("start listening to the host server");
                     while(true){
                         String message = inFromServer.next();
                         System.out.println("got notifyGuests: "+message);
@@ -157,7 +162,16 @@ public class Model extends Observable{
                         if(args[0].equals("notifyGuests")){
                             // TODO
                         }
-                        else if(args[0].equals("TryWord")){
+                        else if(args[0].equals("resp")){
+                            // set the response to be all the args except the first one
+                            String response = "";
+                            for(int i=1; i<args.length; i++){
+                                response += args[i];
+                                if(i != args.length-1){
+                                    response += ",";
+                                }
+                            }
+                            setResponse(response);
                         }
                     }
                 }
@@ -173,7 +187,7 @@ public class Model extends Observable{
 
         System.out.println(port);
         // Get the response from the host
-        String response=inFromServer.next();
+        String response=getResponseFromHost();
         System.out.println("test2");
 
         // Parse the response
@@ -186,6 +200,23 @@ public class Model extends Observable{
         }
 
         return result;
+    }
+
+    private void setResponse(String string) {
+        this.resp = string;
+        this.respValid = true;
+    }
+
+    private String getResponseFromHost() {
+        while(!this.respValid){
+            try{
+                Thread.sleep(100);
+            }catch (Exception e){
+                System.out.println("getResponse exception");
+            }
+        }
+        this.respValid = false;
+        return this.resp;
     }
 
     // Create function joinGame here. This function will take in a room number (int) and return a boolean. (Host)
@@ -368,7 +399,9 @@ public class Model extends Observable{
         // Send the word, direction, and position to the server
         String dir = direction ? "Down" : "Right";
         // Send the word to the server and get the response
-        String response = sendOnPort("TryWord,"+word+","+dir+","+position[0]+","+position[1]+","+name, 6100);
+        outToServer.println("TryWord,"+word+","+dir+","+position[0]+","+position[1]+","+name);
+        outToServer.flush();
+        String response=getResponseFromHost();
 
         // Parse the response as Result
         return new Result(response);
@@ -388,7 +421,7 @@ public class Model extends Observable{
         outToServer.flush();
 
         // Get the response from the server
-        String response=inFromServer.next();
+        String response = getResponseFromHost();
 
         // Parse the response
         Boolean result = Boolean.parseBoolean(response);
@@ -407,15 +440,9 @@ public class Model extends Observable{
    
     public String sendOnPort(String message, int port){
         try{
-            // Socket socket=new Socket("localhost", port);
-            // PrintWriter outToServer=new PrintWriter(socket.getOutputStream());
-            // Scanner inFromServer=new Scanner(socket.getInputStream());
             outToServer.println(message);
             outToServer.flush();
             String response=inFromServer.next();
-            // inFromServer.close();
-            // outToServer.close();
-            // socket.close();
             return response;
         }catch (Exception e){
             System.out.println("sendOnPort exception");

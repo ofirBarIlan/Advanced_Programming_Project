@@ -111,7 +111,9 @@ public class MyServer {
 		for(Socket client : clients) {
 			try {
 				PrintWriter outToClient = new PrintWriter(client.getOutputStream());
+				System.out.println("notifyGuests: " + message);
 				outToClient.println(message);
+				outToClient.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

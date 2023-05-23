@@ -1,18 +1,61 @@
 package com.example;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import view_model.ViewModel;
 
 public class SecondaryController {
     ViewModel vm;
+    BooleanProperty isHost;
+
+    @FXML
+    Button startGameButton;
+
+    @FXML 
+    Label roomNumLabel;
+
+    @FXML
+    ImageView waitingImage;
+    
+    public void init(ViewModel vm) {
+        this.vm = vm;
+        isHost = new SimpleBooleanProperty();
+        
+
+        // Bind with roomNumLabel in vm
+        roomNumLabel.textProperty().bind(vm.roomNumLabel);
+        isHost.bind(vm.isHost);
+
+        if(isHost.get()){
+            startGameButton.setVisible(true);
+        }                
+
+        // Check why doesn't work
+        try {
+            String root = System.getProperty("user.dir")+"\\demo\\src\\main\\";
+            System.out.println(root);
+            InputStream stream = new FileInputStream(root+"resources\\Images\\waiting.JPG");            
+            Image image = new Image(stream);
+            waitingImage.setImage(image);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
     @FXML
     private void switchToPrimary() throws IOException {
         App.setRoot("primary");
         App.stage.setScene(App.scene1);
-    }
-    public void init(ViewModel vm){
-        this.vm = vm;
     }
 }

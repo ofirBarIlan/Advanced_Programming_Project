@@ -12,19 +12,22 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 import view_model.ViewModel;
 
-// added observer
+
 public class PrimaryController extends Observable implements Initializable, Observer {
     @FXML
     private void switchToSecondary() throws IOException {
@@ -59,21 +62,18 @@ public class PrimaryController extends Observable implements Initializable, Obse
         {TW,E,E,DL,E,E,E,TW,E,E,E,DL,E,E,TW},
     };
 
-    // int score;
     @FXML
     BoardDisplayer boardDisplayer;
     @FXML
-    Label scoreTitle; //added changed name
+    Label scoreTitle;
     @FXML
-    Label scoreLabel; //added score label
+    Label scoreLabel; 
     @FXML
     Label spacingLabel;
     @FXML
     Label directionLabel;
     @FXML
     Label enterWordLabel;
-    @FXML
-    TextField direction;
     @FXML
     TextField word;
     @FXML
@@ -82,6 +82,10 @@ public class PrimaryController extends Observable implements Initializable, Obse
     Button challengeButton;
     @FXML 
     Label instructionLabel;
+    @FXML
+    ComboBox directionBox;
+
+    ObservableList<String> directionList = FXCollections.observableArrayList("Up","Down", "Right"); // For Combobox
     
     IntegerProperty row;
     IntegerProperty col;
@@ -99,14 +103,21 @@ public class PrimaryController extends Observable implements Initializable, Obse
 
     void init(ViewModel vm){
         this.vm = vm;
-        vm.direction.bind(direction.textProperty());
+        
+        // Set items for comboBox
+        directionBox.setValue("Right");
+        directionBox.setItems(directionList);
+        
+        // Bind vm with view
+        vm.direction.bind(directionBox.valueProperty());
         vm.word.bind(word.textProperty());
         vm.col.bind(col);
         vm.row.bind(row);
         vm.sendButton.bind(sendButton.pressedProperty());
         
-
-        //scoreLabel.textProperty().bind(vm.scoreLabel);
+        // Bind view with vm
+        scoreLabel.textProperty().bind(vm.scoreLabel);
+        
 
         EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() { 
             @Override 
@@ -155,7 +166,7 @@ public class PrimaryController extends Observable implements Initializable, Obse
         
             // go over word
             String wordValue = word.getText();
-            String directionValue = direction.getText();
+            String directionValue = directionBox.getAccessibleText();
 
             for (int i = 0; i < wordValue.length(); i++) {
                 if (wordValue.charAt(i) != '_') {

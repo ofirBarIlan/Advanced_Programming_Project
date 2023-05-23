@@ -58,6 +58,11 @@
                      </VBox.margin>
                   </Label>
                        <BoardDisplayer fx:id="boardDisplayer" height="400" width="500" BorderPane.alignment="CENTER" />
+                  <Label fx:id="handsLabel">
+                     <VBox.margin>
+                        <Insets left="50.0" />
+                     </VBox.margin>
+                  </Label>     
                </children>
             </VBox>
                <VBox alignment="TOP_RIGHT" prefHeight="92.0" prefWidth="130.0" spacing="10" translateY="20">

@@ -2,6 +2,7 @@ package view_model;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.util.jar.Attributes.Name;
 
 import com.example.PrimaryController;
 import com.example.SecondaryController;
@@ -177,7 +178,39 @@ public class ViewModel extends Observable implements Observer{
 
     @Override
     public void update(Observable o, Object arg) { // gets word, direction , position
-        
+        String[] args = ((String)arg).split(",");
+        if(args[0].equals("addWord"))
+        {
+            String direction;
+            String name = args[1];
+            String word = args[2];
+            if (Boolean.parseBoolean(args[3])){
+                direction ="Right";
+            }
+            else{
+                direction ="Down";
+            }
+            
+            int row =  Integer.parseInt(args[4]);
+            int col =  Integer.parseInt(args[5]);
+            String scoreCalculated = args[6];
+
+            pc.updateBoard(word, direction, row, col);
+        } else if (args[0].equals("updateHand"))
+        {
+            String letters = "";
+            for(int i=1;i<=args.length-1; i++){
+                if(i!=1)
+                {
+                    letters+=","+args[i];
+                }
+                else{
+                    letters+= args[i];
+                }
+            }
+            pc.setHand(letters);
+
+        }
     }
 
     public void setCurPlayer(String curPlayer, boolean isMyTurn) {
@@ -186,7 +219,7 @@ public class ViewModel extends Observable implements Observer{
 
     public void challengeButton() {
         
-        m.challengeVM(word.getValue(), row.getValue(), col.getValue(), direction.getValue() );
+        m.challengeVM(word.getValue(), direction.getValue() );
         
         scoreLabel.set(String.valueOf(m.getScore()));
     }

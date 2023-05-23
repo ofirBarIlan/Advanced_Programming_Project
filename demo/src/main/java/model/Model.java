@@ -56,6 +56,8 @@ public class Model extends Observable{
 
     private boolean respValid;
     private String resp;
+    private int port;
+    private int[] pos;
 
     public class Result {
         public int score;
@@ -74,7 +76,7 @@ public class Model extends Observable{
 
     // Constructor
     public Model(int port){
-        
+        this.port = port;
         board = new Board(port, this);
         gameState = GameState.Idle;
         bag = Tile.Bag.getBag();
@@ -93,7 +95,13 @@ public class Model extends Observable{
             return -1;
         }
         gameState = GameState.WAITING_FOR_PLAYERS;
-        
+        try{
+            this.socket=new Socket("localhost", port);
+            this.outToServer=new PrintWriter(socket.getOutputStream());
+            this.inFromServer=new Scanner(socket.getInputStream());
+        }catch (Exception e){
+            System.out.println("startRoom: Could not connect to server");
+        }
         // Generate a random room number
         int roomNumber = (int)(Math.random() * 100000);
         this.roomNumber = roomNumber;
@@ -121,13 +129,26 @@ public class Model extends Observable{
         {
             // Initialize player's hand with random Tiles
             ArrayList<Tile> handTiles = new ArrayList<>();
-            for (int i = 0; i < 98; i++) {
+            for (int i = 0; i < 20; i++) {
                 handTiles.add(bag.getRand());
             }
             
             // Add the player's hand to the dictionary
             playerHands.put(player, handTiles);
-            System.out.println(playerHands);
+
+            String letters = "";
+             for (Tile t: handTiles)
+             {
+                 letters+=","+t.letter;
+             }
+            if (player.equals(me))
+            {
+                setChanged();
+                notifyObservers("updateHand"+letters);
+            }
+            else{
+                notifyGuests("updateHand"+letters);
+            }
         }
     }
 
@@ -139,7 +160,7 @@ public class Model extends Observable{
             assert false;
         }
 
-        initHands();        
+        initHands();
 
         // Set the game state
         gameState = GameState.PLAYING;
@@ -185,8 +206,9 @@ public class Model extends Observable{
                         String message = inFromServer.next();
                         System.out.println("got notifyGuests: "+message);
                         String[] args = message.split(",");
-                        if(args[0].equals("notifyGuests")){
-                            // TODO
+                        if(args[0].equals("addWord")){
+                            setChanged();
+                            notifyObservers(message);
                         }
                         else if(args[0].equals("resp")){
                             // set the response to be all the args except the first one
@@ -198,6 +220,15 @@ public class Model extends Observable{
                                 }
                             }
                             setResponse(response);
+                        }
+                        else if (args[0].equals("updateHand"))
+                        {
+                            for(int i=1;i<args.length;i++)
+                            {
+                                arrayTiles.add(Tile.Bag.getBag().getTile((args[i]).charAt(0)));
+                            }
+                            setChanged();
+                            notifyObservers(message);
                         }
                     }
                 }
@@ -296,6 +327,8 @@ public class Model extends Observable{
 
         error = result.errorType;
         totalScore += scoreCalculated;
+
+        pos = position;
         return error;
     }
     
@@ -308,7 +341,7 @@ public class Model extends Observable{
         }
     }
 
-    public Tile[] convertStringToTiles(String word, int row, int col, boolean dir ){
+    public Tile[] convertStringToTiles(String word, int row, int col, boolean dir, String name){
         ArrayList<Tile> convertedTiles = new ArrayList<Tile>();
         
         
@@ -331,7 +364,7 @@ public class Model extends Observable{
             }
             else{
                 System.out.println(playerHands);
-                for(Tile tile : playerHands.get(me)){
+                for(Tile tile : playerHands.get(name)){
                     if(tile.letter == word.charAt(i)){
                         convertedTiles.add(tile);
                         flag = true;
@@ -347,32 +380,44 @@ public class Model extends Observable{
         return tilesArray;
     }
 
-    public void challengeVM(String word, int row, int col, String direction ){
+    public void challengeVM(String word, String direction ){
         boolean dir =true;
+        int row = pos[0];
+        int col = pos[1];
         if(direction.equals("Right")){
-            dir = true;
-        }
-        else if(direction.equals("Down")){
             dir = false;
         }
+        else if(direction.equals("Down")){
+            dir = true;
+        }
        
-        Tile[] tiles = convertStringToTiles(word, row, col, dir);
+        Tile[] tiles = convertStringToTiles(word, row, col, dir, me);
         
         Word w = new Word(tiles, row, col, dir);
-        if(isHost){
-            
-            if (challenge(word, me)){
-                totalScore += board.getScore(w) + 5;
+        ArrayList<Word> words = board.getWords(w);
+        boolean flag = false;
+        for(Word wordToCheck: words)
+        {
+            String wordStr = "";
+            for (Tile t: wordToCheck.getTiles())
+            {
+                wordStr+=t.letter;
+            }
+            if(isHost){
+
+                if (!challenge(wordStr, me)){
+                    flag = true;
+                }
             }
             else{
-                totalScore-=1000;
+               if (!challengeAsGuest(wordStr, me)){
+                    flag = true;
+                }
             }
         }
-        else{
-           if (challengeAsGuest(word, me)){
-                totalScore += board.getScore(w) + 5;
-            }
-        }
+        if (flag)
+            totalScore-=1000;
+        else{totalScore += board.getScore(w) + 5;}
     }
 
     // Create function tryWord here. This function will take in a word (string), a direction (boolean), and a position ((int, int)) and return a boolean.
@@ -388,7 +433,7 @@ public class Model extends Observable{
 
         tryWordFlag = false;
 
-        Tile[] tiles = convertStringToTiles(word, position[0], position[1], direction);
+        Tile[] tiles = convertStringToTiles(word, position[0], position[1], direction, name);
         if(tryWordFlag){
             return new Result(0, ErrorType.DO_NOT_HAVE_LETTERS);
         }
@@ -397,14 +442,13 @@ public class Model extends Observable{
         scoreCalculated = board.tryPlaceWord(w);
         if(scoreCalculated>0){
             nextPlayer();
-            // notifyGuests(name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
-            // if (name!=me) {
-            //     setChanged();
-            //     notifyObservers(word+","+direction+","+position[0]+","+position[1]);
-            // }
+            notifyGuests("addWord,"+name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
+            if (!name.equals(me)) {
+                setChanged();
+                notifyObservers(word+","+direction+","+position[0]+","+position[1]);
+            }
             error = ErrorType.SUCCESS;
         }
-        notifyGuests(name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
         return new Result(scoreCalculated, error);
     }
 
@@ -426,14 +470,9 @@ public class Model extends Observable{
         }
         // get all new words - getWords()
 
-        
+        String books = "t1.txt";
         // Send the word to the server
-        this.outToServer.println("C,"+word);
-        this.outToServer.flush();
-
-        // Get the response from the server
-        
-        String response=inFromServer.next();
+        String response = sendOnPort("C,"+books+","+word, port);
 
         // Parse the response
         Boolean result = Boolean.parseBoolean(response);
@@ -487,6 +526,9 @@ public class Model extends Observable{
    
     public String sendOnPort(String message, int port){
         try{
+            this.socket=new Socket("localhost", port);
+            this.outToServer=new PrintWriter(socket.getOutputStream());
+            this.inFromServer=new Scanner(socket.getInputStream());
             outToServer.println(message);
             outToServer.flush();
             String response=inFromServer.next();

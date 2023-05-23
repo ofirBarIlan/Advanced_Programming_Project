@@ -79,12 +79,14 @@ public class PrimaryController extends Observable implements Initializable, Obse
     @FXML
     Button sendButton;
     @FXML
-    public
-    Button challengeButton;
+    public Button challengeButton;
     @FXML 
     Label instructionLabel;
     @FXML
     ComboBox<String> directionBox;
+
+    @FXML 
+    Label handsLabel;
 
     ObservableList<String> directionList = FXCollections.observableArrayList("Down", "Right"); // For ComboBox
     
@@ -93,7 +95,6 @@ public class PrimaryController extends Observable implements Initializable, Obse
     BooleanProperty isValid;
 
 
-    //TODO add score
     // Constructor - happens only once
     public PrimaryController(){   
         row = new SimpleIntegerProperty();
@@ -144,7 +145,9 @@ public class PrimaryController extends Observable implements Initializable, Obse
         
     }
     
-   
+    public void setHand(String letters){
+        handsLabel.setText(letters);
+    }
     protected void setCol(SimpleIntegerProperty simpleIntegerProperty) {
         col.set((int)Math.floor((simpleIntegerProperty.getValue()*boardData.length)/boardDisplayer.getWidth()));
     }
@@ -189,6 +192,26 @@ public class PrimaryController extends Observable implements Initializable, Obse
             boardDisplayer.setBoardData(boardData);       
         
         
+    }
+
+    public void updateBoard(String word, String dir, int row, int col) {
+                
+        for (int i = 0; i < word.length(); i++) {
+            if (word.charAt(i) != '_') {
+                char letter = Character.toLowerCase(word.charAt(i));
+                // put each letter on the board
+                boardData[row][col] = letter - 'a' + 1;
+            }
+            if(dir.equalsIgnoreCase("right")){
+                col++;
+            }
+            else if(dir.equalsIgnoreCase("down")){
+                row++;
+            }
+        }
+        boardDisplayer.setBoardData(boardData);       
+    
+    
     }
 
     public void setScore(Object score) {

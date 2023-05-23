@@ -1,9 +1,11 @@
 package test;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +20,7 @@ public class MyServer {
 	ClientHandler ch;
 	ServerSocket server;
 	ExecutorService executor;
+	ArrayList<Socket> clients = new ArrayList<Socket>();
 
 	
 	// constructor of MyServer
@@ -53,7 +56,9 @@ public class MyServer {
                             Class<? extends ClientHandler> clientHandlerClass = this.ch.getClass();
                             ClientHandler currCh = clientHandlerClass.getDeclaredConstructor().newInstance();
 							System.out.println("my server");
+							clients.add(client); // add the client to the clients list (for the notifyGuests method)
                             currCh.handleClient(client.getInputStream(), client.getOutputStream()); // handle the client
+							clients.remove(client); // remove the client from the clients list (for the notifyGuests method)
                             currCh.close(); // close the current client handler
 							client.close(); // close the client
 						} catch (Exception e) {
@@ -103,7 +108,14 @@ public class MyServer {
 	}
 
 	public void notifyGuests(String message) {
-		// TODO: save a list of all the clients and send them the message
+		for(Socket client : clients) {
+			try {
+				PrintWriter outToClient = new PrintWriter(client.getOutputStream());
+				outToClient.println(message);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

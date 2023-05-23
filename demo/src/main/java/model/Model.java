@@ -41,7 +41,8 @@ public class Model extends Observable{
 
     // List of all players in the game
     ArrayList<String> players = new ArrayList<String>();
-    int curPlayer = 0;
+    int curPlayerIndex = 0;
+    String curPlayerName;
     String me;
 
     public class Result {
@@ -145,6 +146,23 @@ public class Model extends Observable{
             this.socket=new Socket("localhost", port);
             this.outToServer=new PrintWriter(socket.getOutputStream());
             this.inFromServer=new Scanner(socket.getInputStream());
+            // Start a thread to listen to the host server
+            Thread t = new Thread(new Runnable(){
+                @Override
+                public void run(){
+                    while(true){
+                        String message = inFromServer.next();
+                        System.out.println("got notifyGuests: "+message);
+                        String[] args = message.split(",");
+                        if(args[0].equals("notifyGuests")){
+                            // TODO
+                        }
+                        else if(args[0].equals("TryWord")){
+                        }
+                    }
+                }
+            });
+            t.start();
         }catch (Exception e){
             System.out.println("joinGameAsGuest: could not connect to the host server");
         }
@@ -234,7 +252,7 @@ public class Model extends Observable{
     public Result tryWord(String word, boolean direction, int[] position, String name){
         System.out.println("start tryWord " + word);
        // Check if it is the player's turn
-        if(!name.equals(players.get(curPlayer))){
+        if(!name.equals(players.get(curPlayerIndex))){
             System.out.println("Not the player's turn");
             return new Result(0, ErrorType.NOT_YOUR_TURN);
         }
@@ -252,7 +270,7 @@ public class Model extends Observable{
         Word w = new Word(tiles, position[0], position[1], !direction);
         scoreCalculated = board.tryPlaceWord(w);
         if(scoreCalculated>0){
-            curPlayer = (curPlayer + 1) % players.size();
+            nextPlayer();
             // notifyGuests(name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
             // if (name!=me) {
             //     setChanged();
@@ -260,23 +278,24 @@ public class Model extends Observable{
             // }
             error = ErrorType.SUCCESS;
         }
+        notifyGuests(name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
         return new Result(scoreCalculated, error);
     }
 
     public void giveUp(String name){
         assert isHost;
         // Check if it is the player's turn
-        if(!name.equals(players.get(curPlayer))){
+        if(!name.equals(players.get(curPlayerIndex))){
             assert false;
         }
 
-        curPlayer = (curPlayer + 1) % players.size();
+        nextPlayer();
     }
 
     public boolean challenge(String word, String name){
         assert isHost;
         // Check if it is the player's turn
-        if(!name.equals(players.get(curPlayer))){
+        if(!name.equals(players.get(curPlayerIndex))){
             return false;
         }
         // Send the word to the server
@@ -288,7 +307,7 @@ public class Model extends Observable{
 
         // Parse the response
         Boolean result = Boolean.parseBoolean(response);
-        curPlayer = (curPlayer + 1) % players.size();
+        nextPlayer();
         return result;
     }
 
@@ -365,7 +384,7 @@ public class Model extends Observable{
     }
 
     private void nextPlayer() {
-        curPlayer = (curPlayer + 1) % players.size();
-        
+        curPlayerIndex = (curPlayerIndex + 1) % players.size();
+        curPlayerName = players.get(curPlayerIndex);
     }
 }

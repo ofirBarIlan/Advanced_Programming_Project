@@ -358,7 +358,6 @@ public class BoardDisplayer extends Canvas {
             // Draw wherever there is 0
             for(int i=0; i<BoardData.length; i++){
                 for(int j =0; j< BoardData[i].length; j++){
-                    System.out.println(i+" "+j+" "+BoardData[i][j]);
                     gc.drawImage(imagesArray[BoardData[i][j]],j*w_cell, i*h_cell, w_cell, h_cell);
                                        
                 }

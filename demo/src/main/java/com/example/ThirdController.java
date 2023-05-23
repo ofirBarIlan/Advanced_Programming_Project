@@ -42,8 +42,10 @@ public class ThirdController {
     private void switchToSecondaryAsHost() throws IOException {
         String name = nameTextField.getText();
         vm.startRoomFromModel(name);
+        
         App.setRoot("secondary");
         App.stage.setScene(App.scene2);
+        App.sc.init(this.vm,true);
     }
 
     @FXML
@@ -59,6 +61,8 @@ public class ThirdController {
         String name = nameTextField.getText();
         String roomNum = roomNumberTextField.getText();
         String portNum = portNumberTextField.getText();
+        
+        
         
         // Check if the room number is valid (not empty and numeric)
         if (roomNum.isEmpty()) {
@@ -87,8 +91,10 @@ public class ThirdController {
         // Join the room
         name = nameTextField.getText();
         if(vm.joinRoomFromModel(Integer.parseInt(roomNum), Integer.parseInt(portNumberTextField.getText()), name)){
+            
             App.setRoot("secondary");
             App.stage.setScene(App.scene2);
+            App.sc.init(this.vm,false);
         }
         else{
             errorLabel.setText("Invalid data, try again");

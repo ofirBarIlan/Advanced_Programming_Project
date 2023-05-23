@@ -68,7 +68,7 @@
                   <Label fx:id="enterWordLabel" alignment="TOP_LEFT" prefHeight="17.0" prefWidth="132.0" text="Enter word" />
                   <TextField fx:id="word" />
                   <Button fx:id="sendButton" text="Send" />
-               <Button fx:id="challengeButton" mnemonicParsing="false" text="Challenge!" />
+               <Button fx:id="challengeButton" mnemonicParsing="false" text="Challenge!" onAction="#onChallenge" />
   
                </VBox>
              </HBox>

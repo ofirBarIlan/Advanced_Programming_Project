@@ -79,13 +79,14 @@ public class PrimaryController extends Observable implements Initializable, Obse
     @FXML
     Button sendButton;
     @FXML
+    public
     Button challengeButton;
     @FXML 
     Label instructionLabel;
     @FXML
-    ComboBox directionBox;
+    ComboBox<String> directionBox;
 
-    ObservableList<String> directionList = FXCollections.observableArrayList("Up","Down", "Right"); // For Combobox
+    ObservableList<String> directionList = FXCollections.observableArrayList("Down", "Right"); // For ComboBox
     
     IntegerProperty row;
     IntegerProperty col;
@@ -114,6 +115,7 @@ public class PrimaryController extends Observable implements Initializable, Obse
         vm.col.bind(col);
         vm.row.bind(row);
         vm.sendButton.bind(sendButton.pressedProperty());
+        // vm.challengeButton.bind(challengeButton.pressedProperty());
         
         // Bind view with vm
         scoreLabel.textProperty().bind(vm.scoreLabel);
@@ -166,7 +168,10 @@ public class PrimaryController extends Observable implements Initializable, Obse
         
             // go over word
             String wordValue = word.getText();
-            String directionValue = directionBox.getAccessibleText();
+            System.out.println(wordValue);
+            String directionValue = vm.direction.getValue();
+            
+            System.out.println(directionValue);
 
             for (int i = 0; i < wordValue.length(); i++) {
                 if (wordValue.charAt(i) != '_') {
@@ -180,9 +185,6 @@ public class PrimaryController extends Observable implements Initializable, Obse
                 else if(directionValue.equalsIgnoreCase("down")){
                     row.set(row.get() + 1);
                 }
-                else if(directionValue.equalsIgnoreCase("up")){
-                    row.set(row.get() - 1);
-                }
             }
             boardDisplayer.setBoardData(boardData);       
         
@@ -192,6 +194,8 @@ public class PrimaryController extends Observable implements Initializable, Obse
     public void setScore(Object score) {
     }
 
-   
+    public void onChallenge(){
+        vm.challengeButton();
+    }
 
 }

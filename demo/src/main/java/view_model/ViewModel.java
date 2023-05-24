@@ -29,7 +29,7 @@ public class ViewModel extends Observable implements Observer{
 
     // Binding for primaryController
     public IntegerProperty row, col;
-    public StringProperty word, direction, scoreLabel, roomNumLabel, curPlayer;
+    public StringProperty word, direction, scoreLabel, roomNumLabel, curPlayer, handsLabel;
     public BooleanProperty sendButton, isMyTurn, challengeButton;
 
     int rowToSend, colToSend;
@@ -61,6 +61,7 @@ public class ViewModel extends Observable implements Observer{
         scoreLabel = new SimpleStringProperty();        
         isMyTurn = new SimpleBooleanProperty();
         curPlayer = new SimpleStringProperty();
+        handsLabel = new SimpleStringProperty();
 
 
         //for secondaryController:
@@ -199,6 +200,20 @@ public class ViewModel extends Observable implements Observer{
         } else if (args[0].equals("updateHand"))
         {
             String letters = "";
+            for(int i=2;i<=args.length-1; i++){
+                if(i!=2)
+                {
+                    letters+=","+args[i];
+                }
+                else{
+                    letters+= args[i];
+                }
+            }
+            handsLabel.set(letters);
+
+        }
+        else if (args[0].equals("updateHandMiddleOfGame")) {
+            String letters = "";
             for(int i=1;i<=args.length-1; i++){
                 if(i!=1)
                 {
@@ -208,8 +223,7 @@ public class ViewModel extends Observable implements Observer{
                     letters+= args[i];
                 }
             }
-            pc.setHand(letters);
-
+            handsLabel.set(letters);
         }
     }
 

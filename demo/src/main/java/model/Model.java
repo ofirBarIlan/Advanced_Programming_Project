@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Scanner;
+
+import javafx.application.Platform;
 import test.*;
 
 public class Model extends Observable{
@@ -43,8 +45,6 @@ public class Model extends Observable{
 
     // List of all players in the game
     ArrayList<String> players = new ArrayList<String>();
-    // List of tiles for each player's hand
-    ArrayList<Tile> arrayTiles = new ArrayList<Tile>();
     // Create the dictionary to store player hands
     Map<String, ArrayList<Tile>> playerHands = new HashMap<>();
 
@@ -144,10 +144,10 @@ public class Model extends Observable{
             if (player.equals(me))
             {
                 setChanged();
-                notifyObservers("updateHand"+letters);
+                notifyObservers("updateHand,"+player+letters);
             }
             else{
-                notifyGuests("updateHand"+letters);
+                notifyGuests("updateHand,"+player+letters);
             }
         }
     }
@@ -207,6 +207,7 @@ public class Model extends Observable{
                         System.out.println("got notifyGuests: "+message);
                         String[] args = message.split(",");
                         if(args[0].equals("addWord")){
+                            System.out.println("addWord");
                             setChanged();
                             notifyObservers(message);
                         }
@@ -223,12 +224,41 @@ public class Model extends Observable{
                         }
                         else if (args[0].equals("updateHand"))
                         {
-                            for(int i=1;i<args.length;i++)
-                            {
-                                arrayTiles.add(Tile.Bag.getBag().getTile((args[i]).charAt(0)));
+                            if (args[1].equals(me)){
+                                for(int i=2;i<args.length;i++)
+                                {
+                                    playerHands.get(me).add(Tile.Bag.getBag().getTile((args[i]).charAt(0)));
+                                }
+                                setChanged();
+                                notifyObservers(message);
                             }
-                            setChanged();
-                            notifyObservers(message);
+                        }
+                        else if (args[0].equals("updateHandMiddleOfGame")){
+                            if (args[1].equals(me)){
+                                String tilesToDrop = args[2];
+                                for (char c: tilesToDrop.toCharArray()){
+                                    for (Tile t: playerHands.get(me)){
+                                        if (t.letter == c){
+                                            playerHands.get(me).remove(t);
+                                            break;
+                                        }
+                                    }
+                                }
+                                String tilesToPick = args[3];
+                                for (char c: tilesToPick.toCharArray()){
+                                    playerHands.get(me).add(bag.getBag().getTile(c));
+                                }
+                                String letters = "";
+                                for (Tile t: playerHands.get(me))
+                                {
+                                    letters+=","+t.letter;
+                                }
+                                final String finalLetters = letters;
+                                Platform.runLater(() -> {
+                                    setChanged();
+                                    notifyObservers("updateHandMiddleOfGame"+finalLetters);
+                                });
+                            }
                         }
                     }
                 }
@@ -254,6 +284,7 @@ public class Model extends Observable{
             this.isHost = false;
             gameState = GameState.WAITING_FOR_START;
             me = name;
+            playerHands.put(me, new ArrayList<Tile>());
         }
 
         return result;
@@ -312,18 +343,6 @@ public class Model extends Observable{
         }        
 
         scoreCalculated = result.score;
-        if(scoreCalculated>0){
-            for(char c : word.toCharArray()){
-                if(c != '_'){
-                    for(Tile tile : playerHands.get(me)){
-                        if(c == tile.letter){
-                            playerHands.get(me).remove(tile);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
 
         error = result.errorType;
         totalScore += scoreCalculated;
@@ -441,11 +460,55 @@ public class Model extends Observable{
         Word w = new Word(tiles, position[0], position[1], !direction);
         scoreCalculated = board.tryPlaceWord(w);
         if(scoreCalculated>0){
+            // remove tiles from player's hand (only if the tile is not "_")
+            for(char c : word.toCharArray()){
+                if(c != '_'){
+                    for(Tile tile : playerHands.get(name)){
+                        if(c == tile.letter){
+                            playerHands.get(name).remove(tile);
+                            break;
+                        }
+                    }
+                    if(name.equals(me)){
+                        // get new tiles from bag
+                        playerHands.get(name).add(bag.getRand());
+                    }
+                }
+            }
+            if (!name.equals(me))
+            {
+                // notify the guests to update their hands
+                String tilesToDrop = "";
+                for(char c : word.toCharArray()){
+                    if(c != '_'){
+                        tilesToDrop += c;
+                    }
+                }
+                String tilesToAdd = "";
+                for(char c: tilesToDrop.toCharArray()){
+                    Tile tile = bag.getRand();
+                    if (tile == null)
+                        break;
+                    playerHands.get(name).add(tile);
+                    tilesToAdd += tile.letter;
+                }
+                notifyGuests("updateHandMiddleOfGame,"+name+","+tilesToDrop+","+tilesToAdd);
+            }
+            else
+            {
+                // notify the view to update the hand
+                String letters = "";
+                for(Tile t : playerHands.get(name)){
+                    letters += ","+t.letter;
+                }
+                setChanged();
+                notifyObservers("updateHandMiddleOfGame"+letters);
+            }
             nextPlayer();
             notifyGuests("addWord,"+name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
             if (!name.equals(me)) {
                 setChanged();
-                notifyObservers(word+","+direction+","+position[0]+","+position[1]);
+                notifyObservers("addWord,"+name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
             }
             error = ErrorType.SUCCESS;
         }

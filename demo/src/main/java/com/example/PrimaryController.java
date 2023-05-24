@@ -120,6 +120,7 @@ public class PrimaryController extends Observable implements Initializable, Obse
         
         // Bind view with vm
         scoreLabel.textProperty().bind(vm.scoreLabel);
+        handsLabel.textProperty().bind(vm.handsLabel);
         
 
         EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() { 

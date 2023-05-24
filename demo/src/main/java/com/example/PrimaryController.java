@@ -105,7 +105,8 @@ public class PrimaryController extends Observable implements Initializable, Obse
 
     void init(ViewModel vm){
         this.vm = vm;
-        
+        challengeButton.managedProperty().bind(challengeButton.visibleProperty());
+        challengeButton.setVisible(false);
         // Set items for comboBox
         directionBox.setValue("Right");
         directionBox.setItems(directionList);
@@ -219,6 +220,8 @@ public class PrimaryController extends Observable implements Initializable, Obse
 
     public void onChallenge(){
         vm.challengeButton();
+        challengeButton.setVisible(false);
+        
     }
 
 }

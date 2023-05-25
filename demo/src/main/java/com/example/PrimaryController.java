@@ -225,4 +225,9 @@ public class PrimaryController extends Observable implements Initializable, Obse
         
     }
 
+    public void endGame() throws IOException {
+        App.setRoot("gameOver");
+        App.stage.setScene(App.scene4);
+    }
+
 }

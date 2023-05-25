@@ -18,7 +18,7 @@ import javafx.application.Platform;
 import test.*;
 
 public class Model extends Observable{
-
+    int n = 3;
     // Define an enum for the different states of the game
     public enum GameState{
         Idle,
@@ -259,6 +259,13 @@ public class Model extends Observable{
                                     notifyObservers("updateHandMiddleOfGame"+finalLetters);
                                 });
                             }
+                        }
+                        else if (args[0].equals("gameEnd")) {
+                            Platform.runLater(() -> {
+                                 
+                            setChanged();
+                            notifyObservers("gameEnd,");
+                            });
                         }
                     }
                 }
@@ -504,6 +511,9 @@ public class Model extends Observable{
                 setChanged();
                 notifyObservers("updateHandMiddleOfGame"+letters);
             }
+            if(isHost){
+                n--;
+            }
             nextPlayer();
             notifyGuests("addWord,"+name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
             if (!name.equals(me)) {
@@ -615,7 +625,16 @@ public class Model extends Observable{
     }
 
     private void nextPlayer() {
+        if(isHost&&n==0){
+            endGame();
+        }
         curPlayerIndex = (curPlayerIndex + 1) % players.size();
         curPlayerName = players.get(curPlayerIndex);
+    }
+
+    private void endGame() {
+        setChanged();
+        notifyObservers("gameEnd,");
+        notifyGuests("gameEnd,");
     }
 }

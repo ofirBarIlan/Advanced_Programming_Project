@@ -14,6 +14,7 @@ import java.io.IOException;
  * JavaFX App
  */
 public class App extends Application {
+    public static Scene scene4;
     public static Scene scene3;
     public static Scene scene2;
     public static Scene scene1;
@@ -24,6 +25,9 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         this.stage = stage;
+        FXMLLoader fxmlLoaderEnd = new FXMLLoader(App.class.getResource("gameOver.fxml"));
+        scene4 = new Scene(fxmlLoaderEnd.load(), 640, 480);
+        EndController ec = fxmlLoaderEnd.getController();
         FXMLLoader fxmlLoaderThird = new FXMLLoader(App.class.getResource("third.fxml"));
         scene3 = new Scene(fxmlLoaderThird.load(), 640, 480);
         ThirdController tc = fxmlLoaderThird.getController();
@@ -46,6 +50,9 @@ public class App extends Application {
         }
         if(tc!=null){
             tc.init(vm);
+        }
+        if(ec!=null){
+            ec.init(vm);
         }
         
     }

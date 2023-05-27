@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
@@ -129,7 +130,7 @@ public class Model extends Observable{
         {
             // Initialize player's hand with random Tiles
             ArrayList<Tile> handTiles = new ArrayList<>();
-            for (int i = 0; i < 20; i++) {
+            for (int i = 0; i < 7; i++) {
                 handTiles.add(bag.getRand());
             }
             
@@ -160,6 +161,8 @@ public class Model extends Observable{
             assert false;
         }
 
+        determineTurns();
+
         initHands();
 
         // Set the game state
@@ -167,6 +170,40 @@ public class Model extends Observable{
 
         // Notify the guests that the game has started
         // TODO
+    }
+
+    private void determineTurns() {
+        String letters = "";
+        Map<Character, String> playersStartingLetter = new HashMap<>();
+
+        for(String player : players)
+        {
+            Tile t = bag.getRand();
+            playersStartingLetter.put(t.letter,player);
+            letters += t.letter;
+
+            bag.put(t);
+        }
+
+        char[] charArray = letters.toCharArray();
+        Arrays.sort(charArray);
+
+        ArrayList<String> newOrder = new ArrayList<>();
+
+        for(char c : charArray){
+            newOrder.add(playersStartingLetter.get(c));
+        }
+
+        players=newOrder;   
+        
+        if(players.get(0).equals(me)){
+            setChanged();
+            notifyObservers("Now it is your turn!");
+        }
+        else{
+            notifyGuests("Now it is your turn!," + players.get(0));
+        }
+        
     }
 
     // Single player version
@@ -260,11 +297,29 @@ public class Model extends Observable{
                                 });
                             }
                         }
-                        else if (args[0].equals("gameEnd")) {
+                        else if (args[0].equals("gameEnd")) {                            
                             Platform.runLater(() -> {
                                 setChanged();
-                                notifyObservers("gameEnd,");
-                            });
+                                notifyObservers("gameEnd," + me + "," + totalScore);
+                            });                                                        
+                        }
+                        else if (args[0].equals("yourTurn")){
+                            System.out.println("got to:" + message);
+                            if(args[1].equals(me)){
+                                Platform.runLater(() -> {
+                                    setChanged();
+                                    notifyObservers("Now it is your turn!");
+                                });  
+                            }
+                        }
+                        else if (args[0].equals("notYourTurn")){
+                            System.out.println("got to:" + message);
+                            if(args[1].equals(me)){
+                                Platform.runLater(() -> {
+                                    setChanged();
+                                    notifyObservers("Now it is NOT your turn!");
+                                });  
+                            }
                         }
                     }
                 }
@@ -621,6 +676,14 @@ public class Model extends Observable{
     }
 
     private void nextPlayer() {
+        if(players.get(curPlayerIndex).equals(me)){
+            setChanged();
+            notifyObservers("Now it is NOT your turn!");
+        }
+        else{
+            notifyGuests("notYourTurn," + players.get(curPlayerIndex));
+        }
+
         if(curPlayerIndex==players.size()-1){
             n--;
         }
@@ -629,12 +692,20 @@ public class Model extends Observable{
         }
         curPlayerIndex = (curPlayerIndex + 1) % players.size();
         curPlayerName = players.get(curPlayerIndex);
+
+        if(players.get(curPlayerIndex).equals(me)){
+            setChanged();
+            notifyObservers("Now it is your turn!");
+        }
+        else{
+            notifyGuests("yourTurn," + players.get(curPlayerIndex));
+        }
     }
 
     private void endGame() {
         Platform.runLater(() -> {
             setChanged();
-            notifyObservers("gameEnd,");
+            notifyObservers("gameEnd," + me + "," + totalScore);
         });
         notifyGuests("gameEnd,");
     }
@@ -687,6 +758,17 @@ public class Model extends Observable{
         // test challengeAsGuest
         if (guestModel1.challengeAsGuest("hello", guest1))
             System.out.println("test challengeAsGuest failed");
+    }
+
+    public void skipTurn() {
+        if(isHost){
+            nextPlayer();
+        }
+        else{
+            outToServer.println("skip," + me);
+            outToServer.flush();
+        }
+
     }
 
 }

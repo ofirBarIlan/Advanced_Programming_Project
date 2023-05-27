@@ -28,20 +28,23 @@ public class App extends Application {
         FXMLLoader fxmlLoaderEnd = new FXMLLoader(App.class.getResource("gameOver.fxml"));
         scene4 = new Scene(fxmlLoaderEnd.load(), 640, 480);
         EndController ec = fxmlLoaderEnd.getController();
+
         FXMLLoader fxmlLoaderThird = new FXMLLoader(App.class.getResource("third.fxml"));
         scene3 = new Scene(fxmlLoaderThird.load(), 640, 480);
         ThirdController tc = fxmlLoaderThird.getController();
+
         FXMLLoader fxmlLoaderSecondary = new FXMLLoader(App.class.getResource("secondary.fxml"));
         scene2 = new Scene(fxmlLoaderSecondary.load(), 640, 480);
         SecondaryController sc = fxmlLoaderSecondary.getController();
+
         FXMLLoader fxmlLoaderPrimary = new FXMLLoader(App.class.getResource("primary.fxml"));
-        scene1 = new Scene(fxmlLoaderPrimary.load(), 640, 480);
+        scene1 = new Scene(fxmlLoaderPrimary.load(), 660, 520);
         PrimaryController pc = fxmlLoaderPrimary.getController();
         stage.setScene(scene3);
         stage.show();
         Model m = new Model(6200);
         
-        ViewModel vm = new ViewModel(m, pc, sc, tc);
+        ViewModel vm = new ViewModel(m, pc, sc, tc, ec);
         if(sc!=null){
             sc.init(vm,true);
         }

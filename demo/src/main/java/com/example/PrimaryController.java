@@ -80,6 +80,8 @@ public class PrimaryController extends Observable implements Initializable, Obse
     Button sendButton;
     @FXML
     public Button challengeButton;
+    @FXML
+    public Label turnLabel;
     @FXML 
     Label instructionLabel;
     @FXML
@@ -225,9 +227,9 @@ public class PrimaryController extends Observable implements Initializable, Obse
         
     }
 
-    public void endGame() throws IOException {
-        App.setRoot("gameOver");
-        App.stage.setScene(App.scene4);
+    public void skipTurn(){
+        vm.skipTurn();
+        challengeButton.setVisible(false);
     }
 
 }

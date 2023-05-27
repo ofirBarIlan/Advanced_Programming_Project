@@ -5,6 +5,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.jar.Attributes.Name;
 
+import com.example.EndController;
 import com.example.PrimaryController;
 import com.example.SecondaryController;
 import com.example.ThirdController;
@@ -27,6 +28,7 @@ public class ViewModel extends Observable implements Observer{
     PrimaryController pc;
     SecondaryController sc;
     ThirdController tc;
+    EndController ec;
 
     // Binding for primaryController
     public IntegerProperty row, col;
@@ -42,11 +44,12 @@ public class ViewModel extends Observable implements Observer{
     public BooleanProperty isHost;
     
     
-    public ViewModel(Model m, PrimaryController pc, SecondaryController sc, ThirdController tc){
+    public ViewModel(Model m, PrimaryController pc, SecondaryController sc, ThirdController tc, EndController ec){
         this.m=m;
         this.pc = pc;
         this.sc = sc;
         this.tc = tc;
+        this.ec = ec;
         m.addObserver(this);
         pc.addObserver(this);
         direction = new SimpleStringProperty();     // binded to Prim Controller
@@ -227,13 +230,19 @@ public class ViewModel extends Observable implements Observer{
             handsLabel.set(letters);
         }
         else if (args[0].equals("gameEnd")) {
-            try {
-                pc.endGame();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
+            try {                
+                Thread.sleep(3000);
+                ec.endGame("Good game " + args[1] + "!","Your score is: " + args[2]);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        else if(args[0].equals("Now it is NOT your turn!")){
+            pc.turnLabel.setText("Now it is NOT your turn!");
+        } 
+        else if(args[0].equals("Now it is your turn!")){
+            pc.turnLabel.setText("Now it is your turn!");
+        } 
     }
 
     public void setCurPlayer(String curPlayer, boolean isMyTurn) {
@@ -252,6 +261,11 @@ public class ViewModel extends Observable implements Observer{
         if(m.isHost()){
             m.startGame();
         }
+    }
+
+
+    public void skipTurn() {
+        m.skipTurn();
     }
 
 }

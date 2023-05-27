@@ -68,7 +68,11 @@ public class GuestHandler implements ClientHandler{
                 host.giveUp(name);
             } else if (args[0].equals("close")) {
                 close = true;
+            } else if (args[0].equals("skip")){
+                System.out.println("got to skip");
+                host.skipTurn();
             }
+
 
             out.flush();
         }

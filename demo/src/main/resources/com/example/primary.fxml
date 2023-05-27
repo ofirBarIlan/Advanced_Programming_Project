@@ -20,7 +20,7 @@
     <center>
     </center>
    <top>
-         <VBox BorderPane.alignment="CENTER">
+         <VBox prefHeight="301.0" prefWidth="645.0" BorderPane.alignment="CENTER">
              <MenuBar VBox.vgrow="NEVER">
                  <menus>
                      <Menu mnemonicParsing="false" text="File">
@@ -49,7 +49,15 @@
                      </children>
                   </HBox> 
                        <Label fx:id="scoreLabel" alignment="CENTER" text="0" />
-                  <Label fx:id="instructionLabel" alignment="TOP_LEFT" prefHeight="17.0" prefWidth="437.0" text="Click on a tile to choose where your word starts">
+                  <Label fx:id="instructionLabel" alignment="TOP_LEFT" prefHeight="17.0" prefWidth="437.0" text="Click on a tile to choose where your word starts">                  
+                     <padding>
+                        <Insets left="20.0" />
+                     </padding>
+                     <VBox.margin>
+                        <Insets left="50.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Label fx:id="turnLabel" alignment="TOP_LEFT" text="Now it is NOT your turn!" >
                      <padding>
                         <Insets left="20.0" />
                      </padding>
@@ -69,11 +77,11 @@
                   <Label fx:id="spacingLabel" alignment="CENTER" text="" />
                   <Label fx:id="directionLabel" alignment="TOP_LEFT" prefHeight="17.0" prefWidth="130.0" text="Enter direction" />
                   <ComboBox fx:id="directionBox" prefWidth="150.0" promptText="directions" />
-                  <TextField fx:id="direction" />
                   <Label fx:id="enterWordLabel" alignment="TOP_LEFT" prefHeight="17.0" prefWidth="132.0" text="Enter word" />
                   <TextField fx:id="word" />
                   <Button fx:id="sendButton" text="Send" />
-               <Button fx:id="challengeButton" mnemonicParsing="false" text="Challenge!" onAction="#onChallenge" />
+               <Button fx:id="skipButton" mnemonicParsing="false" onAction="#skipTurn" text="Skip turn!" />
+               <Button fx:id="challengeButton" mnemonicParsing="false" onAction="#onChallenge" text="Challenge!" />
   
                </VBox>
              </HBox>

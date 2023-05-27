@@ -1,5 +1,6 @@
 package view_model;
 
+import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.jar.Attributes.Name;
@@ -224,6 +225,14 @@ public class ViewModel extends Observable implements Observer{
                 }
             }
             handsLabel.set(letters);
+        }
+        else if (args[0].equals("gameEnd")) {
+            try {
+                pc.endGame();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
 

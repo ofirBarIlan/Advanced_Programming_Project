@@ -262,9 +262,8 @@ public class Model extends Observable{
                         }
                         else if (args[0].equals("gameEnd")) {
                             Platform.runLater(() -> {
-                                 
-                            setChanged();
-                            notifyObservers("gameEnd,");
+                                setChanged();
+                                notifyObservers("gameEnd,");
                             });
                         }
                     }
@@ -511,9 +510,6 @@ public class Model extends Observable{
                 setChanged();
                 notifyObservers("updateHandMiddleOfGame"+letters);
             }
-            if(isHost){
-                n--;
-            }
             nextPlayer();
             notifyGuests("addWord,"+name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
             if (!name.equals(me)) {
@@ -625,7 +621,10 @@ public class Model extends Observable{
     }
 
     private void nextPlayer() {
-        if(isHost&&n==0){
+        if(curPlayerIndex==players.size()-1){
+            n--;
+        }
+        if(isHost && n==0){
             endGame();
         }
         curPlayerIndex = (curPlayerIndex + 1) % players.size();
@@ -633,8 +632,10 @@ public class Model extends Observable{
     }
 
     private void endGame() {
-        setChanged();
-        notifyObservers("gameEnd,");
+        Platform.runLater(() -> {
+            setChanged();
+            notifyObservers("gameEnd,");
+        });
         notifyGuests("gameEnd,");
     }
 
@@ -643,42 +644,49 @@ public class Model extends Observable{
     public static void main(String[] args) {
         int serverPort = 6200;
         int hostPort = 6100;
-        String me = "me";
-        String guest = "guest";
+        String host = "host";
+        String guest1 = "guest1";
+        String guest2 = "guest2";
+        String guest3 = "guest3";
         Model hostModel = new Model(serverPort);
         Model guestModel1 = new Model(hostPort);
         Model guestModel2 = new Model(hostPort);
         Model guestModel3 = new Model(hostPort);
 
         // test startRoom
-        int roomNumber = hostModel.startRoom(me);
-        if (roomNumber==-1)
+        int roomNumber = hostModel.startRoom(host);
+        if (roomNumber<0)
             System.out.println("test startRoom failed");
         // test joinGame
-        if (!hostModel.joinGame(roomNumber, guest))
+        if (!hostModel.joinGame(roomNumber, "guest"))
             System.out.println("test joinGame failed");
         // test joinGameAsGuest
-        if (!guestModel1.joinGameAsGuest(roomNumber, hostPort, guest))
+        if (!guestModel1.joinGameAsGuest(roomNumber, hostPort, guest1))
             System.out.println("test joinGameAsGuest failed");
-        if (!guestModel2.joinGameAsGuest(roomNumber, hostPort, guest))
+        if (!guestModel2.joinGameAsGuest(roomNumber, hostPort, guest2))
             System.out.println("test joinGameAsGuest failed");
-        if (!guestModel3.joinGameAsGuest(roomNumber, hostPort, guest))
+        if (!guestModel3.joinGameAsGuest(roomNumber, hostPort, guest3))
             System.out.println("test joinGameAsGuest failed");
+        hostModel.startGame();
         // test tryWord
-        if (hostModel.tryWord("hello", true, new int[]{7, 7}, me).score != 0)
+        if (hostModel.tryWord("hello", true, new int[]{7, 7}, host).score != 0)
             System.out.println("test tryWord failed");
         // test tryWordAsGuest
-        if (guestModel1.tryWordAsGuest("hello", true, new int[]{7, 7}, guest).score != 0)
+        if (guestModel1.tryWordAsGuest("_ello", false, new int[]{7, 7}, guest1).score != 0)
             System.out.println("test tryWordAsGuest failed");
-        if (guestModel2.tryWordAsGuest("hello", true, new int[]{7, 7}, guest).score != 0)
+        if (guestModel2.tryWordAsGuest("hell_", true, new int[]{11,3}, guest2).score != 0)
             System.out.println("test tryWordAsGuest failed");
-        if (guestModel3.tryWordAsGuest("hello", true, new int[]{7, 7}, guest).score != 0)
+        if (guestModel3.tryWordAsGuest("he_lo", true, new int[]{9, 5}, guest3).score != 0)
             System.out.println("test tryWordAsGuest failed");
+
+
+        
         // test challenge
-        if (hostModel.challenge("hello", me))
+        if (hostModel.challenge("hello", host))
             System.out.println("test challenge failed");
         // test challengeAsGuest
-        if (guestModel1.challengeAsGuest("hello", guest))
+        if (guestModel1.challengeAsGuest("hello", guest1))
             System.out.println("test challengeAsGuest failed");
+    }
 
 }

@@ -618,4 +618,48 @@ public class Model extends Observable{
         curPlayerIndex = (curPlayerIndex + 1) % players.size();
         curPlayerName = players.get(curPlayerIndex);
     }
+
+
+    // Unit tests, to test the functions in the class
+    public static void main(String[] args) {
+        int serverPort = 6200;
+        int hostPort = 6100;
+        String me = "me";
+        String guest = "guest";
+        Model hostModel = new Model(serverPort);
+        Model guestModel1 = new Model(hostPort);
+        Model guestModel2 = new Model(hostPort);
+        Model guestModel3 = new Model(hostPort);
+
+        // test startRoom
+        int roomNumber = hostModel.startRoom(me);
+        if (roomNumber==-1)
+            System.out.println("test startRoom failed");
+        // test joinGame
+        if (!hostModel.joinGame(roomNumber, guest))
+            System.out.println("test joinGame failed");
+        // test joinGameAsGuest
+        if (!guestModel1.joinGameAsGuest(roomNumber, hostPort, guest))
+            System.out.println("test joinGameAsGuest failed");
+        if (!guestModel2.joinGameAsGuest(roomNumber, hostPort, guest))
+            System.out.println("test joinGameAsGuest failed");
+        if (!guestModel3.joinGameAsGuest(roomNumber, hostPort, guest))
+            System.out.println("test joinGameAsGuest failed");
+        // test tryWord
+        if (hostModel.tryWord("hello", true, new int[]{7, 7}, me).score != 0)
+            System.out.println("test tryWord failed");
+        // test tryWordAsGuest
+        if (guestModel1.tryWordAsGuest("hello", true, new int[]{7, 7}, guest).score != 0)
+            System.out.println("test tryWordAsGuest failed");
+        if (guestModel2.tryWordAsGuest("hello", true, new int[]{7, 7}, guest).score != 0)
+            System.out.println("test tryWordAsGuest failed");
+        if (guestModel3.tryWordAsGuest("hello", true, new int[]{7, 7}, guest).score != 0)
+            System.out.println("test tryWordAsGuest failed");
+        // test challenge
+        if (hostModel.challenge("hello", me))
+            System.out.println("test challenge failed");
+        // test challengeAsGuest
+        if (guestModel1.challengeAsGuest("hello", guest))
+            System.out.println("test challengeAsGuest failed");
+    }
 }

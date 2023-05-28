@@ -836,6 +836,7 @@ public class Model extends Observable{
                 {
                     // test tryWord
                     Result result = hostModel.tryWord(word, dir, new int[]{row, col}, host);
+                    //System.out.println("score: " + result.score + ", errorType: " + result.errorType);
                     if (result.score == 0 && result.errorType != ErrorType.SUCCESS)
                         System.out.println("test tryWord failed");
                     else {
@@ -846,6 +847,7 @@ public class Model extends Observable{
                 {
                     // test tryWordAsGuest
                     Result result1 = guestModel1.tryWordAsGuest(word, dir, new int[]{row, col}, guest1);
+                    //System.out.println("score: " + result1.score + ", errorType: " + result1.errorType);
                     if (result1.score == 0 && result1.errorType != ErrorType.SUCCESS)
                         System.out.println("test tryWordAsGuest failed");
                     else {

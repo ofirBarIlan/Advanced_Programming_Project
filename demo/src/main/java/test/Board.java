@@ -206,7 +206,7 @@ public class Board {
 
         // Get the response from the server
         String response=inFromServer.next();
-		System.out.println("RESPONDED " + response);
+		//System.out.println("RESPONDED " + response);
         // Parse the response
         Boolean result = Boolean.parseBoolean(response);
 		if(!result) {

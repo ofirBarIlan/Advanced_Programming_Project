@@ -38,17 +38,18 @@ public class App extends Application {
         SecondaryController sc = fxmlLoaderSecondary.getController();
 
         FXMLLoader fxmlLoaderPrimary = new FXMLLoader(App.class.getResource("primary.fxml"));
-        scene1 = new Scene(fxmlLoaderPrimary.load(), 660, 520);
+        scene1 = new Scene(fxmlLoaderPrimary.load(), 680, 540);
         PrimaryController pc = fxmlLoaderPrimary.getController();
+
         stage.setScene(scene3);
         stage.show();
         Model m = new Model(6200);
-        ViewModel vm = new ViewModel(m, pc, sc, tc, ec);
-        if(sc!=null){
-            sc.init(vm,true);
-        }
+        ViewModel vm = new ViewModel(m, pc, sc, tc, ec);        
         if(pc!=null){
             pc.init(vm);
+        }
+        if(sc!=null){
+            sc.init(vm);
         }
         if(tc!=null){
             tc.init(vm);

@@ -29,57 +29,19 @@
          <children>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Label text="You joined room number:">
-                     <HBox.margin>
+                  <!-- <Label fx:id="roomTitleLabel" text="You joined room number:"> -->
+                     <!-- <HBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </HBox.margin>
                   </Label>
-                  <Label fx:id="roomNumLabel">
+                  <Label fx:id="roomNumLabel" alignment="CENTER" prefHeight="39.0" prefWidth="84.0" >
                      <HBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </HBox.margin>
-                  </Label>
+                  </Label> -->
                </children>
             </HBox>
-            <HBox prefHeight="37.0" prefWidth="201.0">
-               <children>
-                  <Label prefHeight="32.0" prefWidth="140.0" text="Players in the room:">
-                     <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
-                     </padding>
-                  </Label>
-               </children>
-            </HBox>
-            <HBox>
-                <children>
-                    <Label fx:id="player1Label" text="1">
-                     <padding>
-                        <Insets left="10.0" right="10.0" />
-                     </padding>
-                  </Label>
-                    <Label fx:id="player2Label" text="2">
-                     <padding>
-                        <Insets left="10.0" right="10.0" />
-                     </padding>
-                  </Label>
-                    <Label fx:id="player3Label" text="3">
-                     <padding>
-                        <Insets left="10.0" right="10.0" />
-                     </padding>
-                  </Label>
-                    <Label fx:id="player4Label" text="4">
-                     <padding>
-                        <Insets left="10.0" right="10.0" />
-                     </padding>
-                  </Label>
-                </children>
-                <padding>
-                    <Insets bottom="10.0" left="10.0" right="10.0" />
-                </padding>
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
-            </HBox>
+            <HBox prefHeight="37.0" prefWidth="201.0" />
          </children>
       </VBox>
    </top>

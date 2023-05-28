@@ -20,7 +20,7 @@
 <?import javafx.scene.text.Font?>
 
 
-<BorderPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.EndController">
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.EndController">
     <center>
         <VBox alignment="CENTER" prefHeight="642.0" prefWidth="685.0" spacing="20.0">
             <children>

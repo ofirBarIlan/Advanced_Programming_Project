@@ -59,7 +59,7 @@ public class ViewModel extends Observable implements Observer{
         sendButton = new SimpleBooleanProperty(); 
         challengeButton = new SimpleBooleanProperty(); 
 
-        roomNumLabel = new SimpleStringProperty();  // binded to Sec Controller
+        //roomNumLabel = new SimpleStringProperty();  // binded to Sec Controller
         isHost = new SimpleBooleanProperty();       
 
         scoreLabel = new SimpleStringProperty();        
@@ -112,11 +112,15 @@ public class ViewModel extends Observable implements Observer{
     }    
 
     // from thirdController - starts room and updates the room number
-    public void startRoomFromModel(String name) {
-        
+    public int startRoomFromModel(String name, int port) {
+        int roomNum = m.startRoom(name, port);
         scoreLabel.set(String.valueOf(m.getScore()));
-        roomNumLabel.set(String.valueOf(m.startRoom(name)));
+        //sc.roomNumLabel.setText(""+m.startRoom(name));
+        // roomNumLabel.set(String.valueOf(m.startRoom(name)));
+        System.out.println(roomNum);
         isHost.set(m.isHost());
+        
+        return roomNum;
 
     }
     public boolean joinRoomFromModel(int roomNum, int port, String name) {

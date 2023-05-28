@@ -96,7 +96,7 @@ public class Model extends Observable{
 
 
     // Create function startRoom here. This function will return a room number (int). (Host)
-    public int startRoom(String name){
+    public int startRoom(String name, int port){
         // Check if the game is in the correct state
         if(gameState != GameState.Idle){
             return -1;
@@ -114,7 +114,6 @@ public class Model extends Observable{
         this.roomNumber = roomNumber;
         //System.out.println(roomNumber);
         this.isHost = true;
-        int port = 6100;
         startServer(port);
         me = name;
         players.add(name);
@@ -395,9 +394,9 @@ public class Model extends Observable{
             return false;
         }
         // Check if the room number is correct
-        if(this.roomNumber != roomNumber){
-            return false;
-        }
+        // if(this.roomNumber != roomNumber){
+        //     return false;
+        // }
 
         // Set the game state
         gameState = GameState.WAITING_FOR_START;
@@ -795,7 +794,7 @@ public class Model extends Observable{
         guestModel1.setTestMode();
 
         // test startRoom
-        int roomNumber = hostModel.startRoom(host);
+        int roomNumber = hostModel.startRoom(host,6100);
         if (roomNumber<0)
             System.out.println("test startRoom failed");
         else {

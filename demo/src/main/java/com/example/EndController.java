@@ -10,6 +10,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Rectangle;
 import view_model.ViewModel;
 
 import javafx.scene.text.Font;
@@ -25,12 +32,26 @@ public class EndController {
 
     @FXML
     Label nameLabel; 
-    @FXML
     
+    @FXML
+    BorderPane rootPane;
+
     public void init(ViewModel vm) {
         this.vm = vm;
 
+        String root = System.getProperty("user.dir")+"\\demo\\src\\main\\";
+        InputStream stream;
+        try {
+            stream = new FileInputStream(root+"resources\\Images\\backgroundImage.jpeg");            
+            Image img = new Image(stream);
+            BackgroundImage backgroundImage = new BackgroundImage(img,null,null, null, null);
+            Background background = new Background(backgroundImage);
+            rootPane.setBackground(background);           
 
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }              
                 
     }
        

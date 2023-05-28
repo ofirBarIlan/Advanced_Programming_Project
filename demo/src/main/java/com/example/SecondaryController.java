@@ -19,16 +19,19 @@ public class SecondaryController {
     Button startGameButton;
 
     @FXML 
-    Label roomNumLabel;
+    public Label roomNumLabel;
+
+    @FXML
+    public Label roomTitleLabel;
 
     @FXML
     ImageView waitingImage;
     
-    public void init(ViewModel vm, boolean isHost) {
+    public void init(ViewModel vm) {
         this.vm = vm;
 
         // Bind with roomNumLabel in vm
-        roomNumLabel.textProperty().bind(vm.roomNumLabel);        
+        // roomNumLabel.textProperty().bind(vm.roomNumLabel);
         startGameButton.managedProperty().bind(startGameButton.visibleProperty());
         startGameButton.setVisible(false);
                  

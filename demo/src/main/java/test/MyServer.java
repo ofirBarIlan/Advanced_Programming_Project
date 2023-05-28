@@ -55,7 +55,7 @@ public class MyServer {
 							// create new instance of the client handler
                             Class<? extends ClientHandler> clientHandlerClass = this.ch.getClass();
                             ClientHandler currCh = clientHandlerClass.getDeclaredConstructor().newInstance();
-							System.out.println("my server");
+							//System.out.println("my server");
 							clients.add(client); // add the client to the clients list (for the notifyGuests method)
                             currCh.handleClient(client.getInputStream(), client.getOutputStream()); // handle the client
 							clients.remove(client); // remove the client from the clients list (for the notifyGuests method)
@@ -111,7 +111,7 @@ public class MyServer {
 		for(Socket client : clients) {
 			try {
 				PrintWriter outToClient = new PrintWriter(client.getOutputStream());
-				System.out.println("notifyGuests: " + message);
+				//System.out.println("notifyGuests: " + message);
 				outToClient.println(message);
 				outToClient.flush();
 			} catch (IOException e) {

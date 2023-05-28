@@ -43,7 +43,7 @@ public class App extends Application {
         stage.setScene(scene3);
         stage.show();
         Model m = new Model(6200);
-        
+        m.setTestMode();
         ViewModel vm = new ViewModel(m, pc, sc, tc, ec);
         if(sc!=null){
             sc.init(vm,true);

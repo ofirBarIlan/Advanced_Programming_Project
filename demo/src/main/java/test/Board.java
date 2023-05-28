@@ -184,25 +184,25 @@ public class Board {
 	}
 	
 	public boolean dictionaryLegal(Word w) {
-		System.out.println("dictionaryLegal");
+		//System.out.println("dictionaryLegal");
 		try{
             this.socket=new Socket("localhost", portToServer);
             this.outToServer=new PrintWriter(socket.getOutputStream());
             this.inFromServer=new Scanner(socket.getInputStream());
         }catch (Exception e){
-            System.out.println("dictionaryLegal: Could not connect to server");
+            //System.out.println("dictionaryLegal: Could not connect to server");
         }
 		String word="";
 		for(Tile t: w.getTiles())
 		{
 			word=word+t.letter;
 		}
-		System.out.println("Sending to server "+word);
+		//System.out.println("Sending to server "+word);
 		// Check if the word is in the dictionary, using the server
-        String books = "t1.txt";
+        String books = "Harray Potter.txt";
         outToServer.println("Q,"+books+","+word);
         outToServer.flush();
-		System.out.println("sent to server");
+		//System.out.println("sent to server");
 
         // Get the response from the server
         String response=inFromServer.next();
@@ -372,7 +372,7 @@ public class Board {
 	}
 	
 	public int tryPlaceWord(Word w) {
-		System.out.println("start tryPlaceWord");
+		//System.out.println("start tryPlaceWord");
 		for(int i = 0; i<w.getTiles().length; i++) {
 			if(w.getTiles()[i]==null) {
 				if(w.getVertical()) {

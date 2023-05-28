@@ -128,7 +128,7 @@ public class ViewModel extends Observable implements Observer{
     private void sendData(Boolean newval){
         if(newval==true){
         int loc[] = {rowToSend, colToSend};
-        System.out.println(wordToSend + " " + direction.getValue() + " " + loc[0] + " " + loc[1]);
+        //System.out.println(wordToSend + " " + direction.getValue() + " " + loc[0] + " " + loc[1]);
         ErrorType result = m.tryWordVM(wordToSend, direction.getValue(), loc);
         scoreLabel.set(String.valueOf(m.getScore()));
         if(result == ErrorType.SUCCESS){
@@ -231,7 +231,7 @@ public class ViewModel extends Observable implements Observer{
         }
         else if (args[0].equals("gameEnd")) {
             try {                
-                Thread.sleep(3000);
+                Thread.sleep(1000);
                 ec.endGame("Good game " + args[1] + "!","Your score is: " + args[2]);
             } catch (Exception e) {
                 e.printStackTrace();

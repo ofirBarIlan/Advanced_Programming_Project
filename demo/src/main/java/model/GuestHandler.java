@@ -24,7 +24,7 @@ public class GuestHandler implements ClientHandler{
     @Override
     public void handleClient(InputStream inFromClient, OutputStream outToClient) {
         
-        System.out.println("handle client");
+        //System.out.println("handle client");
 
         in = new Scanner(inFromClient);
         out = new PrintWriter(outToClient);
@@ -35,7 +35,7 @@ public class GuestHandler implements ClientHandler{
             String[] args = line.split(",");
 
             if (args[0].equals("joinGame")) {
-                System.out.println("Join game");
+                //System.out.println("Join game");
                 assert false;
                 int roomNumber = Integer.parseInt(args[1]);
                 String name = args[2];
@@ -69,7 +69,7 @@ public class GuestHandler implements ClientHandler{
             } else if (args[0].equals("close")) {
                 close = true;
             } else if (args[0].equals("skip")){
-                System.out.println("got to skip");
+                //System.out.println("got to skip");
                 host.skipTurn();
             }
 

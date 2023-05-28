@@ -6,6 +6,7 @@ import java.util.Scanner;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.TextField;
 import view_model.ViewModel;
 
@@ -24,6 +25,8 @@ public class ThirdController {
     @FXML
     private Button hostButton;
     @FXML
+    private Button singlePlayerButton;
+    @FXML
     private Label errorLabel;
     @FXML
     private Label portNumberLabel;
@@ -35,7 +38,7 @@ public class ThirdController {
         // Bind the disable property of the buttons to the empty property of the nameTextField and roomNumberTextField
         guestButton.disableProperty().bind(nameTextField.textProperty().isEmpty());
         hostButton.disableProperty().bind(nameTextField.textProperty().isEmpty());
-               
+        singlePlayerButton.disableProperty().bind(nameTextField.textProperty().isEmpty());   
     }
 
     @FXML
@@ -45,6 +48,17 @@ public class ThirdController {
         
         App.setRoot("secondary");
         App.stage.setScene(App.scene2);
+        
+    }
+
+    @FXML
+    private void switchToSecondaryAsSinglePlayer() throws IOException {
+        String name = nameTextField.getText();
+        vm.startRoomFromModel(name);
+        
+        vm.startGame();
+        App.setRoot("primary");
+        App.stage.setScene(App.scene1);
         
     }
 

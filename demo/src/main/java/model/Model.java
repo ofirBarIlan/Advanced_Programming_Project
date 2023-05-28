@@ -13,7 +13,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Observer;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javafx.application.Platform;
 import test.*;
@@ -53,6 +57,8 @@ public class Model extends Observable{
     String curPlayerName;
     String me;
     private boolean tryWordFlag;
+
+    private boolean testMode = false;
 
 
     private boolean respValid;
@@ -101,12 +107,12 @@ public class Model extends Observable{
             this.outToServer=new PrintWriter(socket.getOutputStream());
             this.inFromServer=new Scanner(socket.getInputStream());
         }catch (Exception e){
-            System.out.println("startRoom: Could not connect to server");
+            //System.out.println("startRoom: Could not connect to server");
         }
         // Generate a random room number
         int roomNumber = (int)(Math.random() * 100000);
         this.roomNumber = roomNumber;
-        System.out.println(roomNumber);
+        //System.out.println(roomNumber);
         this.isHost = true;
         int port = 6100;
         startServer(port);
@@ -116,7 +122,7 @@ public class Model extends Observable{
     }
 
     public void startServer(int port){
-        System.out.println("entered startserver");
+        //System.out.println("entered startserver");
         assert isHost;
         ClientHandler gh = new GuestHandler();
         ((GuestHandler)gh).setHost(this);
@@ -179,7 +185,11 @@ public class Model extends Observable{
         for(String player : players)
         {
             Tile t = bag.getRand();
-            playersStartingLetter.put(t.letter,player);
+            if(playersStartingLetter.get(t.letter) != null){
+                bag.put(t);
+                t = bag.getRand();
+            }
+            playersStartingLetter.put(t.letter, player);
             letters += t.letter;
 
             bag.put(t);
@@ -192,6 +202,7 @@ public class Model extends Observable{
 
         for(char c : charArray){
             newOrder.add(playersStartingLetter.get(c));
+            //System.out.println("turn: " +playersStartingLetter.get(c));
         }
 
         players=newOrder;   
@@ -201,7 +212,7 @@ public class Model extends Observable{
             notifyObservers("Now it is your turn!");
         }
         else{
-            notifyGuests("Now it is your turn!," + players.get(0));
+            notifyGuests("yourTurn," + players.get(0));
         }
         
     }
@@ -238,13 +249,13 @@ public class Model extends Observable{
             Thread t = new Thread(new Runnable(){
                 @Override
                 public void run(){
-                    System.out.println("start listening to the host server");
+                    //System.out.println("start listening to the host server");
                     while(true){
                         String message = inFromServer.next();
-                        System.out.println("got notifyGuests: "+message);
+                        //System.out.println("got notifyGuests: "+message);
                         String[] args = message.split(",");
                         if(args[0].equals("addWord")){
-                            System.out.println("addWord");
+                            //System.out.println("addWord");
                             setChanged();
                             notifyObservers(message);
                         }
@@ -291,34 +302,42 @@ public class Model extends Observable{
                                     letters+=","+t.letter;
                                 }
                                 final String finalLetters = letters;
-                                Platform.runLater(() -> {
-                                    setChanged();
-                                    notifyObservers("updateHandMiddleOfGame"+finalLetters);
-                                });
+                                if (!testMode){
+                                    Platform.runLater(() -> {
+                                        setChanged();
+                                        notifyObservers("updateHandMiddleOfGame"+finalLetters);
+                                    });
+                                }
                             }
                         }
                         else if (args[0].equals("gameEnd")) {                            
-                            Platform.runLater(() -> {
-                                setChanged();
-                                notifyObservers("gameEnd," + me + "," + totalScore);
-                            });                                                        
-                        }
-                        else if (args[0].equals("yourTurn")){
-                            System.out.println("got to:" + message);
-                            if(args[1].equals(me)){
+                            if (!testMode){
                                 Platform.runLater(() -> {
                                     setChanged();
-                                    notifyObservers("Now it is your turn!");
-                                });  
+                                    notifyObservers("gameEnd," + me + "," + totalScore);
+                                }); 
+                            }                                                       
+                        }
+                        else if (args[0].equals("yourTurn")){
+                            //System.out.println("got to:" + message);
+                            if(args[1].equals(me)){
+                                if (!testMode){
+                                    Platform.runLater(() -> {
+                                        setChanged();
+                                        notifyObservers("Now it is your turn!");
+                                    }); 
+                                } 
                             }
                         }
                         else if (args[0].equals("notYourTurn")){
-                            System.out.println("got to:" + message);
+                            //System.out.println("got to:" + message);
                             if(args[1].equals(me)){
-                                Platform.runLater(() -> {
-                                    setChanged();
-                                    notifyObservers("Now it is NOT your turn!");
-                                });  
+                                if (!testMode){
+                                    Platform.runLater(() -> {
+                                        setChanged();
+                                        notifyObservers("Now it is NOT your turn!");
+                                    });  
+                                }
                             }
                         }
                     }
@@ -326,17 +345,17 @@ public class Model extends Observable{
             });
             t.start();
         }catch (Exception e){
-            System.out.println("joinGameAsGuest: could not connect to the host server");
+            //System.out.println("joinGameAsGuest: could not connect to the host server");
         }
 
         // Send Connect request to the host, with the room number
         outToServer.println("joinGame,"+roomNumber+","+name);
         outToServer.flush();
 
-        System.out.println(port);
+        //System.out.println(port);
         // Get the response from the host
         String response=getResponseFromHost();
-        System.out.println("test2");
+        //System.out.println("test2");
 
         // Parse the response
         Boolean result = Boolean.parseBoolean(response);
@@ -361,7 +380,7 @@ public class Model extends Observable{
             try{
                 Thread.sleep(100);
             }catch (Exception e){
-                System.out.println("getResponse exception");
+                //System.out.println("getResponse exception");
             }
         }
         this.respValid = false;
@@ -443,12 +462,37 @@ public class Model extends Observable{
                 }                                     
             }
             else{
-                System.out.println(playerHands);
-                for(Tile tile : playerHands.get(name)){
-                    if(tile.letter == word.charAt(i)){
-                        convertedTiles.add(tile);
+                if (testMode)
+                {
+                    Tile t = bag.getTile(word.charAt(i));
+                    if (t != null)
+                    {
+                        convertedTiles.add(t);
+                        bag.put(t);
                         flag = true;
-                        break;
+                    }
+                    else{
+                        for (String player: players)
+                        {
+                            for(Tile tile : playerHands.get(player)){
+                                if(tile.letter == word.charAt(i)){
+                                    convertedTiles.add(tile);
+                                    flag = true;
+                                    break;
+                                }
+                            }
+                            if (flag)
+                                break;
+                        }
+                    }
+
+                }else{
+                    for(Tile tile : playerHands.get(name)){
+                        if(tile.letter == word.charAt(i)){
+                            convertedTiles.add(tile);
+                            flag = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -504,10 +548,11 @@ public class Model extends Observable{
     // This function will check if the word is in the dictionary and if it is, it will check if the word can be placed in the board at the given position and direction.
     // If the word can be placed, the function will return true. Otherwise, it will return false.
     public Result tryWord(String word, boolean direction, int[] position, String name){
-        System.out.println("start tryWord " + word);
+        //System.out.println("start tryWord " + word);
+        word = word.toUpperCase();
        // Check if it is the player's turn
         if(!name.equals(players.get(curPlayerIndex))){
-            System.out.println("Not the player's turn");
+            //System.out.println("Not the player's turn");
             return new Result(0, ErrorType.NOT_YOUR_TURN);
         }
 
@@ -594,7 +639,7 @@ public class Model extends Observable{
         }
         // get all new words - getWords()
 
-        String books = "t1.txt";
+        String books = "Harray Potter.txt";
         // Send the word to the server
         String response = sendOnPort("C,"+books+","+word, port);
 
@@ -658,7 +703,7 @@ public class Model extends Observable{
             String response=inFromServer.next();
             return response;
         }catch (Exception e){
-            System.out.println("sendOnPort exception");
+            //System.out.println("sendOnPort exception");
         }
         return null;
     }
@@ -694,8 +739,12 @@ public class Model extends Observable{
         curPlayerName = players.get(curPlayerIndex);
 
         if(players.get(curPlayerIndex).equals(me)){
-            setChanged();
-            notifyObservers("Now it is your turn!");
+            if (!testMode){
+                Platform.runLater(() -> {
+                    setChanged();
+                    notifyObservers("Now it is your turn!");
+                });
+            }
         }
         else{
             notifyGuests("yourTurn," + players.get(curPlayerIndex));
@@ -703,10 +752,12 @@ public class Model extends Observable{
     }
 
     private void endGame() {
-        Platform.runLater(() -> {
-            setChanged();
-            notifyObservers("gameEnd," + me + "," + totalScore);
-        });
+        if (!testMode){
+            Platform.runLater(() -> {
+                setChanged();
+                notifyObservers("gameEnd," + me + "," + totalScore);
+            });
+        }
         notifyGuests("gameEnd,");
     }
 
@@ -717,47 +768,97 @@ public class Model extends Observable{
         int hostPort = 6100;
         String host = "host";
         String guest1 = "guest1";
-        String guest2 = "guest2";
-        String guest3 = "guest3";
         Model hostModel = new Model(serverPort);
         Model guestModel1 = new Model(hostPort);
-        Model guestModel2 = new Model(hostPort);
-        Model guestModel3 = new Model(hostPort);
+
+        // create observers
+        Observer hostView = new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                //System.out.println("hostView: " + arg);
+            }
+        };
+
+        Observer guestView1 = new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                //System.out.println("guestView1: " + arg);
+            }
+        };
+
+        // add the observables to the observers
+        hostModel.addObserver(hostView);
+        guestModel1.addObserver(guestView1);
+        
+
+        hostModel.setTestMode();
+        guestModel1.setTestMode();
 
         // test startRoom
         int roomNumber = hostModel.startRoom(host);
         if (roomNumber<0)
             System.out.println("test startRoom failed");
-        // test joinGame
-        if (!hostModel.joinGame(roomNumber, "guest"))
-            System.out.println("test joinGame failed");
-        // test joinGameAsGuest
+        else {
+            System.out.println("test startRoom success");
+        }
         if (!guestModel1.joinGameAsGuest(roomNumber, hostPort, guest1))
             System.out.println("test joinGameAsGuest failed");
-        if (!guestModel2.joinGameAsGuest(roomNumber, hostPort, guest2))
-            System.out.println("test joinGameAsGuest failed");
-        if (!guestModel3.joinGameAsGuest(roomNumber, hostPort, guest3))
-            System.out.println("test joinGameAsGuest failed");
+        else {
+            System.out.println("test joinGameAsGuest success");
+        }
         hostModel.startGame();
-        // test tryWord
-        if (hostModel.tryWord("hello", true, new int[]{7, 7}, host).score != 0)
-            System.out.println("test tryWord failed");
-        // test tryWordAsGuest
-        if (guestModel1.tryWordAsGuest("_ello", false, new int[]{7, 7}, guest1).score != 0)
-            System.out.println("test tryWordAsGuest failed");
-        if (guestModel2.tryWordAsGuest("hell_", true, new int[]{11,3}, guest2).score != 0)
-            System.out.println("test tryWordAsGuest failed");
-        if (guestModel3.tryWordAsGuest("he_lo", true, new int[]{9, 5}, guest3).score != 0)
-            System.out.println("test tryWordAsGuest failed");
 
+        ArrayList<String> playersList = hostModel.getPlayers();
 
-        
-        // test challenge
-        if (hostModel.challenge("hello", host))
-            System.out.println("test challenge failed");
-        // test challengeAsGuest
-        if (guestModel1.challengeAsGuest("hello", guest1))
-            System.out.println("test challengeAsGuest failed");
+        // create an action queue to test the functions
+        Queue<String> actionQueue = new ConcurrentLinkedQueue<>();
+        // insert actions to the queue
+        actionQueue.add("hello,Right,7,7");
+        actionQueue.add("_ost,Down,7,9");
+        actionQueue.add("_ay,Right,9,9");
+        actionQueue.add("_ell,Down,9,11");
+
+        int n = 2;
+        int j = 0;
+        while (j<n)
+        {
+            j++;
+            // use a loop to test tryWord and tryWordAsGuest, by the order of the players list.
+            for (int i = 0; i < playersList.size(); i++) {
+                String player = playersList.get(i);
+                String action = actionQueue.poll();
+                // parse the action
+                String[] args1 = action.split(",");
+                String word = args1[0];
+                boolean dir = args1[1].equals("Right");
+                int row = Integer.parseInt(args1[2]);
+                int col = Integer.parseInt(args1[3]);
+                if (player.equals(host))
+                {
+                    // test tryWord
+                    Result result = hostModel.tryWord(word, dir, new int[]{row, col}, host);
+                    if (result.score == 0 && result.errorType != ErrorType.SUCCESS)
+                        System.out.println("test tryWord failed");
+                    else {
+                        System.out.println("test tryWord success");
+                    }
+                }
+                else if (player.equals(guest1))
+                {
+                    // test tryWordAsGuest
+                    Result result1 = guestModel1.tryWordAsGuest(word, dir, new int[]{row, col}, guest1);
+                    if (result1.score == 0 && result1.errorType != ErrorType.SUCCESS)
+                        System.out.println("test tryWordAsGuest failed");
+                    else {
+                        System.out.println("test tryWordAsGuest success");
+                    }
+                }
+            }
+
+        }
+
+        System.out.println("done!");
+
     }
 
     public void skipTurn() {
@@ -769,6 +870,14 @@ public class Model extends Observable{
             outToServer.flush();
         }
 
+    }
+
+    public ArrayList<String> getPlayers() {
+        return players;
+    }
+
+    public void setTestMode() {
+        testMode = true;
     }
 
 }

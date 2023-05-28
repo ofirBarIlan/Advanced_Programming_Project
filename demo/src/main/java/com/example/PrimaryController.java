@@ -175,10 +175,10 @@ public class PrimaryController extends Observable implements Initializable, Obse
         
             // go over word
             String wordValue = word.getText();
-            System.out.println(wordValue);
+            //System.out.println(wordValue);
             String directionValue = vm.direction.getValue();
             
-            System.out.println(directionValue);
+            //System.out.println(directionValue);
 
             for (int i = 0; i < wordValue.length(); i++) {
                 if (wordValue.charAt(i) != '_') {

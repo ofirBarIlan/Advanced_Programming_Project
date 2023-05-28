@@ -36,7 +36,7 @@ public class SecondaryController {
         // Check why doesn't work
         try {
             String root = System.getProperty("user.dir")+"\\demo\\src\\main\\";
-            System.out.println(root);
+            //System.out.println(root);
             InputStream stream = new FileInputStream(root+"resources\\Images\\waiting.JPG");            
             Image image = new Image(stream);
             waitingImage.setImage(image);

@@ -16,6 +16,7 @@
                 <TextField fx:id="nameTextField" promptText="Name" />
                 <Button fx:id="guestButton" text="Enter As Guest" onAction="#switchToSecondaryAsGuest" />
                 <Button fx:id="hostButton" text="Enter As Host" onAction="#switchToSecondaryAsHost" />
+                <Button fx:id="singlePlayerButton" text="Single player mode" onAction="#switchToSecondaryAsSinglePlayer" />
                 <HBox>
                     <children>
                         <Label fx:id="roomNumberLabel" text="Enter room number" visible="false" />

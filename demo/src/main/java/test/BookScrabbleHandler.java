@@ -13,10 +13,10 @@ public class BookScrabbleHandler implements ClientHandler{
         
         Scanner in = new Scanner(inFromClient);
         PrintWriter out = new PrintWriter(outToClient);
-        System.out.println("handle client");
+        //System.out.println("handle client");
         String line = in.nextLine();
         String[] args = line.split(",");
-        System.out.println("after next line");
+        //System.out.println("after next line");
 
         String[] booksAndWord = new String[args.length - 1];
         //get all the args except the first one
@@ -25,7 +25,7 @@ public class BookScrabbleHandler implements ClientHandler{
         }
         
         if (args[0].equals("Q")) {
-            System.out.println("got word "+booksAndWord[booksAndWord.length-1]);
+            //System.out.println("got word "+booksAndWord[booksAndWord.length-1]);
             boolean found = DictionaryManager.get().query(booksAndWord);
             if (found) {
                 out.println("true");

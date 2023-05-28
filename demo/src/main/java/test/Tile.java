@@ -134,7 +134,7 @@ public class Tile {
 					return tiles[i];
 				}
 			}
-			System.out.println("Missing tile");
+			//System.out.println("Missing tile");
 			return null;
 		}
 		

@@ -16,16 +16,14 @@ public class Model_Stub extends Observable {
 
     public void setRow(int r){
         this.row = r;
-        System.out.println("New row is " + row);
+        //System.out.println("New row is " + row);
     }
     public void setDirection(String newval) {
         this.direction = newval;
-        if(direction!="")
-        System.out.println("New direction is " + direction);
     }
     public void setCol(int newval) {
         this.col = newval;
-        System.out.println("New col is " + col);
+        //System.out.println("New col is " + col);
     }
     public void setScore(int newval) {
         this.score = newval;
@@ -35,8 +33,6 @@ public class Model_Stub extends Observable {
     }
     public void setWord(String newval) {
         this.word = newval;
-        if(word!="")
-        System.out.println("New word is " + word);
     }
 
     public void calcScore(){    //added new
@@ -44,7 +40,7 @@ public class Model_Stub extends Observable {
             this.setIsValid(true);
             // update score from server
             this.setScore(2);
-            System.out.println("New score is " + this.score);
+            //System.out.println("New score is " + this.score);
             setChanged();
             notifyObservers();
         }

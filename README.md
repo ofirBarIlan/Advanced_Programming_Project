@@ -33,3 +33,6 @@ Run the application in the following way:
 
 # Acknowledgements
 Ofir, Bar, Yanai, Tomer 
+
+# Division into sub-teams + GANTT chart
+[Division into sub-teams + GANTT chart.xlsx](https://github.com/ofirBarIlan/Advanced_Programming_Project/files/11585305/Division.into.sub-teams.%2B.GANTT.chart.xlsx)

@@ -36,3 +36,6 @@ Ofir, Bar, Yanai, Tomer
 
 # Division into sub-teams + GANTT chart
 [Division into sub-teams + GANTT chart.xlsx](https://github.com/ofirBarIlan/Advanced_Programming_Project/files/11585305/Division.into.sub-teams.%2B.GANTT.chart.xlsx)
+
+# Link to video
+https://drive.google.com/drive/folders/1ajps3Ipx0R0s2IYRQlPyUKQ_JZOzOLW5?usp=sharing

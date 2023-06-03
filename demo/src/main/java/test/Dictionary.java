@@ -77,7 +77,7 @@ public class Dictionary {
 		this.fileNames=fileNames;
 		exists=new CacheManager(400, new LRU());
 		notExists=new CacheManager(100, new LFU());
-		bf = new BloomFilter(256, "MD5","SHA1");
+		bf = new BloomFilter(1 << 20, "MD5","SHA1");
 		
 		for(String fn : fileNames) {
 			try {

@@ -504,6 +504,7 @@ public class Model extends Observable{
     }
 
     public void challengeVM(String word, String direction ){
+        word = word.toUpperCase();
         boolean dir =true;
         int row = pos[0];
         int col = pos[1];
@@ -514,11 +515,12 @@ public class Model extends Observable{
             dir = true;
         }
        
-        Tile[] tiles = convertStringToTiles(word, row, col, dir, me);
+        Tile[] tiles = convertStringToTiles(word, row, col, !dir, me);
         
         Word w = new Word(tiles, row, col, dir);
         ArrayList<Word> words = board.getWords(w);
         boolean flag = false;
+        int scoreCalculated = 0;
         for(Word wordToCheck: words)
         {
             String wordStr = "";
@@ -537,10 +539,17 @@ public class Model extends Observable{
                     flag = true;
                 }
             }
+            if (!flag)
+                scoreCalculated += board.getScore(wordToCheck);
         }
         if (flag)
+        {
             totalScore-=1000;
-        else{totalScore += board.getScore(w) + 5;}
+        }
+        else{
+            totalScore += scoreCalculated + 5;
+            updateAll(me, word, !dir, pos, scoreCalculated);
+        }
     }
 
     // Create function tryWord here. This function will take in a word (string), a direction (boolean), and a position ((int, int)) and return a boolean.
@@ -565,59 +574,61 @@ public class Model extends Observable{
         Word w = new Word(tiles, position[0], position[1], !direction);
         scoreCalculated = board.tryPlaceWord(w);
         if(scoreCalculated>0){
-            // remove tiles from player's hand (only if the tile is not "_")
-            for(char c : word.toCharArray()){
-                if(c != '_'){
-                    for(Tile tile : playerHands.get(name)){
-                        if(c == tile.letter){
-                            playerHands.get(name).remove(tile);
-                            break;
-                        }
-                    }
-                    if(name.equals(me)){
-                        // get new tiles from bag
-                        playerHands.get(name).add(bag.getRand());
-                    }
-                }
-            }
-            if (!name.equals(me))
-            {
-                // notify the guests to update their hands
-                String tilesToDrop = "";
-                for(char c : word.toCharArray()){
-                    if(c != '_'){
-                        tilesToDrop += c;
-                    }
-                }
-                String tilesToAdd = "";
-                for(char c: tilesToDrop.toCharArray()){
-                    Tile tile = bag.getRand();
-                    if (tile == null)
-                        break;
-                    playerHands.get(name).add(tile);
-                    tilesToAdd += tile.letter;
-                }
-                notifyGuests("updateHandMiddleOfGame,"+name+","+tilesToDrop+","+tilesToAdd);
-            }
-            else
-            {
-                // notify the view to update the hand
-                String letters = "";
-                for(Tile t : playerHands.get(name)){
-                    letters += ","+t.letter;
-                }
-                setChanged();
-                notifyObservers("updateHandMiddleOfGame"+letters);
-            }
-            nextPlayer();
-            notifyGuests("addWord,"+name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
-            if (!name.equals(me)) {
-                setChanged();
-                notifyObservers("addWord,"+name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
-            }
+            updateAll(name, word, direction, position, scoreCalculated);
             error = ErrorType.SUCCESS;
         }
         return new Result(scoreCalculated, error);
+    }
+
+    private void updateAll(String name, String word, boolean direction, int[] position, int scoreCalculated) {
+        // remove tiles from player's hand (only if the tile is not "_")
+        for(char c : word.toCharArray()){
+            if(c != '_'){
+                for(Tile tile : playerHands.get(name)){
+                    if(c == tile.letter){
+                        playerHands.get(name).remove(tile);
+                        break;
+                    }
+                }
+                if(name.equals(me)){
+                    // get new tiles from bag
+                    playerHands.get(name).add(bag.getRand());
+                }
+            }
+        }
+        if (!name.equals(me))
+        {
+            // notify the guests to update their hands
+            String tilesToDrop = "";
+            for(char c : word.toCharArray()){
+                if(c != '_'){
+                    tilesToDrop += c;
+                }
+            }
+            String tilesToAdd = "";
+            for(char c: tilesToDrop.toCharArray()){
+                Tile tile = bag.getRand();
+                if (tile == null)
+                    break;
+                playerHands.get(name).add(tile);
+                tilesToAdd += tile.letter;
+            }
+            notifyGuests("updateHandMiddleOfGame,"+name+","+tilesToDrop+","+tilesToAdd);
+        }
+        else
+        {
+            // notify the view to update the hand
+            String letters = "";
+            for(Tile t : playerHands.get(name)){
+                letters += ","+t.letter;
+            }
+            setChanged();
+            notifyObservers("updateHandMiddleOfGame"+letters);
+        }
+        nextPlayer();
+        notifyGuests("addWord,"+name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
+        setChanged();
+        notifyObservers("addWord,"+name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
     }
 
     public void giveUp(String name){
@@ -737,7 +748,7 @@ public class Model extends Observable{
         curPlayerIndex = (curPlayerIndex + 1) % players.size();
         curPlayerName = players.get(curPlayerIndex);
 
-        if(players.get(curPlayerIndex).equals(me)){
+        if(curPlayerName.equals(me)){
             if (!testMode){
                 Platform.runLater(() -> {
                     setChanged();
@@ -746,7 +757,7 @@ public class Model extends Observable{
             }
         }
         else{
-            notifyGuests("yourTurn," + players.get(curPlayerIndex));
+            notifyGuests("yourTurn," + curPlayerName);
         }
     }
 

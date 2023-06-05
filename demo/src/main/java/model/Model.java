@@ -135,7 +135,7 @@ public class Model extends Observable{
         {
             // Initialize player's hand with random Tiles
             ArrayList<Tile> handTiles = new ArrayList<>();
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 20; i++) {
                 handTiles.add(bag.getRand());
             }
             
@@ -255,19 +255,26 @@ public class Model extends Observable{
                         String[] args = message.split(",");
                         if(args[0].equals("addWord")){
                             //System.out.println("addWord");
-                            setChanged();
-                            notifyObservers(message);
+                            Platform.runLater(() -> {
+                                setChanged();
+                                notifyObservers(message);
+                            });
+                            if(args[1].equals(me)){
+                                totalScore += Integer.parseInt(args[6]);
+                            }
                         }
                         else if(args[0].equals("resp")){
-                            // set the response to be all the args except the first one
-                            String response = "";
-                            for(int i=1; i<args.length; i++){
-                                response += args[i];
-                                if(i != args.length-1){
-                                    response += ",";
+                            if(args[1].equals(me)){
+                                // set the response to be all the args except the first one
+                                String response = "";
+                                for(int i=2; i<args.length; i++){
+                                    response += args[i];
+                                    if(i != args.length-1){
+                                        response += ",";
+                                    }
                                 }
+                                setResponse(response);
                             }
-                            setResponse(response);
                         }
                         else if (args[0].equals("updateHand"))
                         {
@@ -276,8 +283,10 @@ public class Model extends Observable{
                                 {
                                     playerHands.get(me).add(Tile.Bag.getBag().getTile((args[i]).charAt(0)));
                                 }
-                                setChanged();
-                                notifyObservers(message);
+                                Platform.runLater(() -> {
+                                    setChanged();
+                                    notifyObservers(message);
+                                });
                             }
                         }
                         else if (args[0].equals("updateHandMiddleOfGame")){
@@ -346,6 +355,7 @@ public class Model extends Observable{
         }catch (Exception e){
             //System.out.println("joinGameAsGuest: could not connect to the host server");
         }
+        me = name;
 
         // Send Connect request to the host, with the room number
         outToServer.println("joinGame,"+roomNumber+","+name);
@@ -362,7 +372,6 @@ public class Model extends Observable{
             this.roomNumber = roomNumber;
             this.isHost = false;
             gameState = GameState.WAITING_FOR_START;
-            me = name;
             playerHands.put(me, new ArrayList<Tile>());
         }
 
@@ -406,25 +415,26 @@ public class Model extends Observable{
     }
 
     public ErrorType tryWordVM(String word, String direction, int[] position){
-        boolean dir=true;
+        boolean isRight=true;
         if(direction.equals("Right")){
-            dir = true;
+            isRight = true;
         }
         else if(direction.equals("Down")){
-            dir = false;
+            isRight = false;
         }
         Result result;
         if(isHost){
-            result = tryWord(word, dir, position, me);
+            result = tryWord(word, isRight, position, me);
         }
         else{
-            result = tryWordAsGuest(word, dir, position, me);
+            result = tryWordAsGuest(word, isRight, position, me);
         }        
 
         scoreCalculated = result.score;
 
         error = result.errorType;
-        totalScore += scoreCalculated;
+        if(isHost)
+            totalScore += scoreCalculated;
 
         pos = position;
         return error;
@@ -439,7 +449,7 @@ public class Model extends Observable{
         }
     }
 
-    public Tile[] convertStringToTiles(String word, int row, int col, boolean dir, String name){
+    public Tile[] convertStringToTiles(String word, int row, int col, boolean isRight, String name){
         ArrayList<Tile> convertedTiles = new ArrayList<Tile>();
         
         
@@ -447,7 +457,7 @@ public class Model extends Observable{
             boolean flag = false;
             if (word.charAt(i) == '_') {
                 
-                if(dir){
+                if(isRight){
                     if(board.getTile()[row][col+i] != null){
                         convertedTiles.add(board.getTile()[row][col+i]);
                         flag = true;
@@ -505,57 +515,22 @@ public class Model extends Observable{
 
     public void challengeVM(String word, String direction ){
         word = word.toUpperCase();
-        boolean dir =true;
         int row = pos[0];
         int col = pos[1];
-        if(direction.equals("Right")){
-            dir = false;
-        }
-        else if(direction.equals("Down")){
-            dir = true;
-        }
-       
-        Tile[] tiles = convertStringToTiles(word, row, col, !dir, me);
         
-        Word w = new Word(tiles, row, col, dir);
-        ArrayList<Word> words = board.getWords(w);
-        boolean flag = false;
-        int scoreCalculated = 0;
-        for(Word wordToCheck: words)
-        {
-            String wordStr = "";
-            for (Tile t: wordToCheck.getTiles())
-            {
-                wordStr+=t.letter;
-            }
-            if(isHost){
-
-                if (!challenge(wordStr, me)){
-                    flag = true;
-                }
-            }
-            else{
-               if (!challengeAsGuest(wordStr, me)){
-                    flag = true;
-                }
-            }
-            if (!flag)
-                scoreCalculated += board.getScore(wordToCheck);
-        }
-        if (flag)
-        {
-            totalScore-=1000;
+        if(isHost){
+            challenge(word, me, direction, row, col);
         }
         else{
-            totalScore += scoreCalculated + 5;
-            updateAll(me, word, !dir, pos, scoreCalculated);
+           challengeAsGuest(word, me, direction, row, col);
         }
     }
+
 
     // Create function tryWord here. This function will take in a word (string), a direction (boolean), and a position ((int, int)) and return a boolean.
     // This function will check if the word is in the dictionary and if it is, it will check if the word can be placed in the board at the given position and direction.
     // If the word can be placed, the function will return true. Otherwise, it will return false.
-    public Result tryWord(String word, boolean direction, int[] position, String name){
+    public Result tryWord(String word, boolean isRight, int[] position, String name){
         //System.out.println("start tryWord " + word);
         word = word.toUpperCase();
        // Check if it is the player's turn
@@ -566,21 +541,21 @@ public class Model extends Observable{
 
         tryWordFlag = false;
 
-        Tile[] tiles = convertStringToTiles(word, position[0], position[1], direction, name);
+        Tile[] tiles = convertStringToTiles(word, position[0], position[1], isRight, name);
         if(tryWordFlag){
             return new Result(0, ErrorType.DO_NOT_HAVE_LETTERS);
         }
 
-        Word w = new Word(tiles, position[0], position[1], !direction);
+        Word w = new Word(tiles, position[0], position[1], !isRight);
         scoreCalculated = board.tryPlaceWord(w);
         if(scoreCalculated>0){
-            updateAll(name, word, direction, position, scoreCalculated);
+            updateAll(name, word, isRight, position, scoreCalculated);
             error = ErrorType.SUCCESS;
         }
         return new Result(scoreCalculated, error);
     }
 
-    private void updateAll(String name, String word, boolean direction, int[] position, int scoreCalculated) {
+    private void updateAll(String name, String word, boolean isRight, int[] position, int scoreCalculated) {
         // remove tiles from player's hand (only if the tile is not "_")
         for(char c : word.toCharArray()){
             if(c != '_'){
@@ -626,9 +601,9 @@ public class Model extends Observable{
             notifyObservers("updateHandMiddleOfGame"+letters);
         }
         nextPlayer();
-        notifyGuests("addWord,"+name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
+        notifyGuests("addWord,"+name+","+word+","+isRight+","+position[0]+","+position[1]+","+scoreCalculated);
         setChanged();
-        notifyObservers("addWord,"+name+","+word+","+direction+","+position[0]+","+position[1]+","+scoreCalculated);
+        notifyObservers("addWord,"+name+","+word+","+isRight+","+position[0]+","+position[1]+","+scoreCalculated);
     }
 
     public void giveUp(String name){
@@ -641,30 +616,60 @@ public class Model extends Observable{
         nextPlayer();
     }
 
-    public boolean challenge(String word, String name){
+    public boolean challenge(String word, String name, String direction, int row, int col){
         assert isHost;
         // Check if it is the player's turn
         if(!name.equals(players.get(curPlayerIndex))){
             return false;
         }
-        // get all new words - getWords()
+        boolean isRight = direction.equals("Right");
 
+        Tile[] tiles = convertStringToTiles(word, row, col, isRight, name);
+        
+        Word w = new Word(tiles, row, col, !isRight);
+        ArrayList<Word> words = board.getWords(w);
+        boolean flag = false;
         String books = "Harray Potter.txt";
-        // Send the word to the server
-        String response = sendOnPort("C,"+books+","+word, port);
+        int scoreCalculated = 0;
+        for(Word wordToCheck: words)
+        {
+            String wordStr = "";
+            for (Tile t: wordToCheck.getTiles())
+            {
+                wordStr+=t.letter;
+            }
+            // Send the word to the server
+            String response = sendOnPort("C,"+books+","+wordStr, port);
 
-        // Parse the response
-        Boolean result = Boolean.parseBoolean(response);
-        nextPlayer();
-        return result;
+            // Parse the response
+            Boolean result = Boolean.parseBoolean(response);
+            if (result)
+                scoreCalculated += board.getScore(wordToCheck);
+            else
+                flag = true;
+        }
+        if (flag)
+        {
+            if (name.equals(me))
+                totalScore-=1000;
+            nextPlayer();
+        }
+        else{
+            if (name.equals(me))
+                totalScore += scoreCalculated + 5;
+            board.tryPlaceWord(w);
+            updateAll(name, word, isRight, new int[]{row, col}, scoreCalculated);
+        }
+
+        return !flag;
     }
 
-    public Result tryWordAsGuest(String word, boolean direction, int[] position, String name){
+    public Result tryWordAsGuest(String word, boolean isRight, int[] position, String name){
         assert !isHost;
         // Send the word, direction, and position to the server
-        String dir = direction ? "Down" : "Right";
+        String direction = isRight ? "Right" : "Down";
         // Send the word to the server and get the response
-        outToServer.println("TryWord,"+word+","+dir+","+position[0]+","+position[1]+","+name);
+        outToServer.println("TryWord,"+word+","+direction+","+position[0]+","+position[1]+","+name);
         outToServer.flush();
         String response=getResponseFromHost();
 
@@ -679,10 +684,10 @@ public class Model extends Observable{
         outToServer.flush();
     }
 
-    public boolean challengeAsGuest(String word, String name){
+    public boolean challengeAsGuest(String word, String name, String direction, int row, int col){
         assert !isHost;
         // Send the word to the server
-        outToServer.println("Challenge,"+word+","+name);
+        outToServer.println("Challenge,"+word+","+name +","+direction+","+row+","+col);
         outToServer.flush();
 
         // Get the response from the server
@@ -690,6 +695,10 @@ public class Model extends Observable{
 
         // Parse the response
         Boolean result = Boolean.parseBoolean(response);
+        if (result)
+            totalScore += 5;
+        else
+            totalScore-=1000;
         return result;
     }
 
@@ -840,13 +849,13 @@ public class Model extends Observable{
                 // parse the action
                 String[] args1 = action.split(",");
                 String word = args1[0];
-                boolean dir = args1[1].equals("Right");
+                boolean isRight = args1[1].equals("Right");
                 int row = Integer.parseInt(args1[2]);
                 int col = Integer.parseInt(args1[3]);
                 if (player.equals(host))
                 {
                     // test tryWord
-                    Result result = hostModel.tryWord(word, dir, new int[]{row, col}, host);
+                    Result result = hostModel.tryWord(word, isRight, new int[]{row, col}, host);
                     //System.out.println("score: " + result.score + ", errorType: " + result.errorType);
                     if (result.score == 0 && result.errorType != ErrorType.SUCCESS)
                         System.out.println("test tryWord failed");
@@ -857,7 +866,7 @@ public class Model extends Observable{
                 else if (player.equals(guest1))
                 {
                     // test tryWordAsGuest
-                    Result result1 = guestModel1.tryWordAsGuest(word, dir, new int[]{row, col}, guest1);
+                    Result result1 = guestModel1.tryWordAsGuest(word, isRight, new int[]{row, col}, guest1);
                     //System.out.println("score: " + result1.score + ", errorType: " + result1.errorType);
                     if (result1.score == 0 && result1.errorType != ErrorType.SUCCESS)
                         System.out.println("test tryWordAsGuest failed");
@@ -874,6 +883,10 @@ public class Model extends Observable{
     }
 
     public void skipTurn() {
+        // check if it is the player's turn
+        if(!me.equals(players.get(curPlayerIndex))){
+            return;
+        }
         if(isHost){
             nextPlayer();
         }

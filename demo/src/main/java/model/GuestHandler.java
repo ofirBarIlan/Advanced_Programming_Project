@@ -41,27 +41,30 @@ public class GuestHandler implements ClientHandler{
                 String name = args[2];
                 boolean success = this.host.joinGame(roomNumber, name);
                 if (success) {
-                    out.println("resp,true");
+                    out.println("resp,"+name+","+"true");
                 } else {
-                    out.println("resp,false");
+                    out.println("resp,"+name+","+"false");
                 }
             } else if (args[0].equals("TryWord")) {
                 String word = args[1];
-                boolean dir = args[2].equals("Down");
+                boolean isRight = args[2].equals("Right");
                 int row = Integer.parseInt(args[3]);
                 int col = Integer.parseInt(args[4]);
                 int[] pos = {row, col};
                 String name = args[5];
-                Result result = host.tryWord(word, dir, pos, name);
-                out.println("resp,"+result.score + "," + result.errorType.ordinal());
+                Result result = host.tryWord(word, isRight, pos, name);
+                out.println("resp,"+name+","+result.score + "," + result.errorType.ordinal());
             } else if (args[0].equals("Challenge")) {
                 String word = args[1];
                 String name = args[2];
-                boolean success = host.challenge(word, name);
+                String dir = args[3];
+                int row = Integer.parseInt(args[4]);
+                int col = Integer.parseInt(args[5]);
+                boolean success = host.challenge(word, name, dir, row, col);
                 if (success) {
-                    out.println("resp,true");
+                    out.println("resp,"+name+","+"true");
                 } else {
-                    out.println("resp,false");
+                    out.println("resp,"+name+","+"false");
                 }
             } else if (args[0].equals("giveUp")) {
                 String name = args[1];

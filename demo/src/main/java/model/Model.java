@@ -694,7 +694,7 @@ public class Model extends Observable{
    
     public String sendOnPort(String message, int port){
         try{
-            this.socket=new Socket("localhost", port);
+            this.socket=new Socket("https://localhost",6200);
             this.outToServer=new PrintWriter(socket.getOutputStream());
             this.inFromServer=new Scanner(socket.getInputStream());
             outToServer.println(message);

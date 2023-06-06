@@ -2,9 +2,11 @@ package test;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,7 +50,14 @@ public class MyServer {
 			while(!stop) {
 				try {
 					Socket client=server.accept(); // wait for a client
+					URL url = new URL("http://localhost:6200");
+           			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+           			connection.setRequestMethod("GET");
 
+            // Send the request
+            		//int responseCode = connection.getResponseCode();
+
+					System.out.println("Connection acquired");
 					// handle the client parallelly as a new task of the thread pool
 					executor.execute(()->{
 						try {

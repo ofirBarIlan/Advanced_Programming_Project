@@ -50,7 +50,7 @@ public class MyServer {
 			while(!stop) {
 				try {
 					Socket client=server.accept(); // wait for a client
-					URL url = new URL("http://localhost:6200");
+					URL url = new URL("http://localhost:"+port);
            			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
            			connection.setRequestMethod("GET");
 

@@ -102,13 +102,13 @@ public class Model extends Observable{
             return -1;
         }
         gameState = GameState.WAITING_FOR_PLAYERS;
-        try{
-            this.socket=new Socket("localhost", port);
-            this.outToServer=new PrintWriter(socket.getOutputStream());
-            this.inFromServer=new Scanner(socket.getInputStream());
-        }catch (Exception e){
-            //System.out.println("startRoom: Could not connect to server");
-        }
+        // try{
+        //     this.socket=new Socket("localhost", port);
+        //     this.outToServer=new PrintWriter(socket.getOutputStream());
+        //     this.inFromServer=new Scanner(socket.getInputStream());
+        // }catch (Exception e){
+        //     //System.out.println("startRoom: Could not connect to server");
+        // }
         // Generate a random room number
         int roomNumber = (int)(Math.random() * 100000);
         this.roomNumber = roomNumber;

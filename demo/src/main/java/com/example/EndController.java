@@ -39,7 +39,7 @@ public class EndController {
     public void init(ViewModel vm) {
         this.vm = vm;
 
-        String root = System.getProperty("user.dir")+"\\demo\\src\\main\\";
+        String root = System.getProperty("user.dir")+"\\src\\main\\";
         InputStream stream;
         try {
             stream = new FileInputStream(root+"resources\\Images\\backgroundImage.jpeg");            

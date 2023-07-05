@@ -272,4 +272,8 @@ public class ViewModel extends Observable implements Observer{
         m.skipTurn();
     }
 
+    public void saveGame(){
+        m.saveGameVM();
+    }
+
 }

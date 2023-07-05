@@ -14,7 +14,7 @@ public class BoardDisplayer extends Canvas {
     Image imagesArray[] = new Image[32];
     public BoardDisplayer() {
      try{
-    String root = System.getProperty("user.dir")+"\\demo\\src\\main\\";
+    String root = System.getProperty("user.dir")+"\\src\\main\\";
     
     InputStream stream = new FileInputStream(root+"resources\\Images\\Empty.PNG");
     imagesArray[0] = new Image(stream);

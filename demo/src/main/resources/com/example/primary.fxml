@@ -82,7 +82,8 @@
                   <Button fx:id="sendButton" text="Send" />
                <Button fx:id="skipButton" mnemonicParsing="false" onAction="#skipTurn" text="Skip turn!" />
                <Button fx:id="challengeButton" mnemonicParsing="false" onAction="#onChallenge" text="Challenge!" />
-  
+               <Button fx:id="saveGame" mnemonicParsing="false" onAction="#onSaveGame" text="Save Game" />
+
                </VBox>
              </HBox>
 

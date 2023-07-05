@@ -51,7 +51,7 @@ public class ThirdController {
         singlePlayerButton.disableProperty().bind(nameTextField.textProperty().isEmpty());   
 
         
-        String root = System.getProperty("user.dir")+"\\demo\\src\\main\\";
+        String root = System.getProperty("user.dir")+"\\src\\main\\";
         InputStream stream;
         try {
             stream = new FileInputStream(root+"resources\\Images\\backgroundImage.jpeg");            

@@ -40,6 +40,12 @@ public class BookScrabbleHandler implements ClientHandler{
                 out.println("false");
             }
         }
+        else if (args[0].equals("S")){
+            int numPlayers = Integer.parseInt(args[args.length-1]);
+            
+
+
+        }
         
         out.flush();
         in.close();

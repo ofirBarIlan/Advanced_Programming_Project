@@ -1,5 +1,6 @@
 package MyPackage;
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -68,6 +69,31 @@ public class GameData implements Serializable {
 		return gd;		
 	}
 	
+	public ArrayList<String> getNames() {
+		return names;
+	}
+
+	public ArrayList<Integer> getScores() {
+		return scores;
+	}
+
+	public ArrayList<String> getHands() {
+		return hands;
+	}
+
+	public ArrayList<String> getBoard() {
+		return board;
+	}
+
+	public Integer getNumPlayers() {
+		return numPlayers;
+	}
+
+	public String getCurrentPlayer() {
+		return currentPlayer;
+	}
+
+
 	//public static intListFromDoc()
 	
 //	public MyPlayer(String name) {

@@ -20,6 +20,8 @@ import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javafx.application.Platform;
+import model.Model.GameState;
+import model.Model.Result;
 import test.*;
 
 public class Model extends Observable{
@@ -52,6 +54,9 @@ public class Model extends Observable{
     ArrayList<String> players = new ArrayList<String>();
     // Create the dictionary to store player hands
     Map<String, ArrayList<Tile>> playerHands = new HashMap<>();
+
+    //Create the dictionary to store player scores
+    Map<String, Integer> playerScores = new HashMap<>();
 
     int curPlayerIndex = 0;
     String curPlayerName;
@@ -169,6 +174,12 @@ public class Model extends Observable{
         determineTurns();
 
         initHands();
+
+        // Set players' scores to 0
+        for (String player : players)
+        {
+            playerScores.put(player, 0);
+        }
 
         // Set the game state
         gameState = GameState.PLAYING;
@@ -552,6 +563,7 @@ public class Model extends Observable{
             updateAll(name, word, isRight, position, scoreCalculated);
             error = ErrorType.SUCCESS;
         }
+        playerScores.put(name, playerScores.get(name) + scoreCalculated);
         return new Result(scoreCalculated, error);
     }
 
@@ -653,12 +665,14 @@ public class Model extends Observable{
             if (name.equals(me))
                 totalScore-=1000;
             nextPlayer();
+            playerScores.put(name, playerScores.get(name) - 1000);
         }
         else{
             if (name.equals(me))
                 totalScore += scoreCalculated + 5;
             board.tryPlaceWord(w);
             updateAll(name, word, isRight, new int[]{row, col}, scoreCalculated);
+            playerScores.put(name, playerScores.get(name) + scoreCalculated + 5);
         }
 
         return !flag;
@@ -903,6 +917,77 @@ public class Model extends Observable{
 
     public void setTestMode() {
         testMode = true;
+    }
+
+    public void saveGameVM(){
+        if(isHost){
+            saveGame();
+        }
+        else{
+            saveGameAsGuest();
+        }
+    }
+
+    public void saveGame(){
+        assert isHost;
+        // Send the word to the server
+        String names = "";
+        for (String name: players)
+        {
+            names += name + ",";
+        }
+        // Delete last comma
+        names = names.substring(0, names.length()-1);
+
+        String scores = "";
+        for (String name: players)
+        {
+            scores += playerScores.get(name) + ",";
+        }
+        // Delete last comma
+        scores = scores.substring(0, scores.length()-1);
+
+        String hands = "";
+        for (String name: players)
+        {
+            String hand = "";
+            for (Tile t: playerHands.get(name))
+            {
+                hand += t.letter;
+            }
+            hands += hand + ",";
+        }
+        // Delete last comma
+        hands = hands.substring(0, hands.length()-1);
+
+        String boardStr = "";
+        for (int i=0; i<15; i++)
+        {
+            for (int j=0; j<15; j++)
+            {
+                if (board.getTile()[i][j] != null)
+                    boardStr += board.getTile()[i][j].letter;
+                else
+                    boardStr += "-";
+            }
+            boardStr += ",";
+        }
+        // Delete last comma
+        boardStr = boardStr.substring(0, boardStr.length()-1);
+
+        String currentPlayer = players.get(curPlayerIndex);
+
+        String numPlayers = "" + players.size();
+
+        String response = sendOnPort("S,"+names+","+scores+","+hands+","+board+","+currentPlayer+","+numPlayers, port);
+
+    }
+
+    public void saveGameAsGuest(){
+        assert !isHost;
+        // Send the word to the server
+        outToServer.println("saveGame");
+        outToServer.flush();
     }
 
 }

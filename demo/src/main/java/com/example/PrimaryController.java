@@ -232,4 +232,8 @@ public class PrimaryController extends Observable implements Initializable, Obse
         challengeButton.setVisible(false);
     }
 
+    public void onSaveGame(){
+        vm.saveGame();
+    }
+
 }

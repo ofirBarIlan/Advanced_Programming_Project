@@ -64,7 +64,7 @@ public class BookScrabbleHandler implements ClientHandler{
             }
         }
         else if (args[0].equals("S")){
-            int numPlayers = Integer.parseInt(args[args.length-1]);
+            int numPlayers = Integer.parseInt(args[args.length-2]);
             ArrayList<String> names = new ArrayList<String>();
             for(int i=1; i<numPlayers+1; i++)
             {
@@ -89,8 +89,9 @@ public class BookScrabbleHandler implements ClientHandler{
                 board.add(args[i]);
             }
 
-            String currentPlayer = args[args.length-2];
-            GameData gd = new GameData(names, scores, hands, board, numPlayers, currentPlayer);
+            String currentPlayer = args[args.length-3];
+            int roomNumber = Integer.parseInt(args[args.length-1]);
+            GameData gd = new GameData(names, scores, hands, board, numPlayers, currentPlayer, roomNumber);
 
             Document gameDocument = gd.toDocument();
             // Get a reference to the collection
@@ -101,6 +102,15 @@ public class BookScrabbleHandler implements ClientHandler{
             
             //Document playerdoc = player_collection.find(Filters.eq("name", "dani")).first();
             System.out.println(getAllDocumentsMatching(game_collection,"currentPlayer","Tomer"));       
+
+        }else if (args[0].equals("L")) {
+            // Get a reference to the collection
+            MongoCollection<Document> game_collection = database.getCollection("GameSaves");
+            ArrayList<Document> list = getAllDocumentsMatching(game_collection,"roomNumber", args[1]);
+            for(Document d : list) {
+                System.out.println(d.toJson());
+            }
+            out.println(list.get(0).toJson());
 
         }
         

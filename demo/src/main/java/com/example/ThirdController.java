@@ -171,4 +171,43 @@ public class ThirdController {
 
     }
 
+    @FXML
+    private void switchToSecondaryLoadGameAsHost() throws IOException{
+        // Show port number label+text field
+        portNumberLabel.setVisible(true);
+        portNumberTextField.setVisible(true);
+
+        // Show room number label+text field
+        roomNumberLabel.setVisible(true); 
+        roomNumberTextField.setVisible(true);
+
+        String name = nameTextField.getText();
+        String portNum = portNumberTextField.getText();
+
+        // Check if the port number is valid (not empty and numeric)
+        if (portNum.isEmpty()) {
+            errorLabel.setText("Empty port number");
+            errorLabel.setVisible(true);
+            return;
+        } else if (!portNum.matches("\\d+")) {
+            errorLabel.setText("Port must be a valid number");
+            errorLabel.setVisible(true);
+            return;
+        }
+        
+        
+        errorLabel.setVisible(false);
+
+        // Join the room
+        if(vm.startRoomFromModel(name, Integer.parseInt(portNumberTextField.getText())) > 0){
+                        
+            App.setRoot("secondary");
+            App.stage.setScene(App.scene2);
+        }
+        else{
+            errorLabel.setText("Invalid data, try again");
+            errorLabel.setVisible(true);
+        }
+    }
+
 }

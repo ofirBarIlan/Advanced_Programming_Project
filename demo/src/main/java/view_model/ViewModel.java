@@ -276,4 +276,13 @@ public class ViewModel extends Observable implements Observer{
         m.saveGameVM();
     }
 
+    public void loadGame(String name, int roomNum, int port){
+        
+        m.loadGame(name, roomNum, port);
+        scoreLabel.set(String.valueOf(m.getScore()));
+        //sc.roomNumLabel.setText(""+m.startRoom(name));
+        // roomNumLabel.set(String.valueOf(m.startRoom(name)));
+        isHost.set(m.isHost());        
+    }
+    
 }

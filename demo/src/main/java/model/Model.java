@@ -979,7 +979,7 @@ public class Model extends Observable{
 
         String numPlayers = "" + players.size();
 
-        String response = sendOnPort("S,"+names+","+scores+","+hands+","+board+","+currentPlayer+","+numPlayers, port);
+        String response = sendOnPort("S,"+names+","+scores+","+hands+","+boardStr+","+currentPlayer+","+numPlayers+","+this.roomNumber, port);
 
     }
 
@@ -990,4 +990,82 @@ public class Model extends Observable{
         outToServer.flush();
     }
 
+    public void loadGame(String name, int roomNum, int port){
+        // Check if the game is in the correct state
+        // if(gameState != GameState.Idle){
+        //     return -1;
+        // }
+        gameState = GameState.WAITING_FOR_PLAYERS;
+        // try{
+        //     this.socket=new Socket("localhost", port);
+        //     this.outToServer=new PrintWriter(socket.getOutputStream());
+        //     this.inFromServer=new Scanner(socket.getInputStream());
+        // }catch (Exception e){
+        //     //System.out.println("startRoom: Could not connect to server");
+        // }
+        // Generate a random room number
+        this.roomNumber = roomNumber;
+        this.isHost = true;
+        startServer(port);
+        me = name;
+
+        String response = sendOnPort("L,"+roomNum, port); // TODO: return in models format
+        // convert json to Document
+        Document doc = Document.parse(response);
+        // get the names
+        String names = doc.getString("names");
+        String[] namesArr = names.split(",");
+        for (String name: namesArr)
+        {
+            players.add(name);
+        }
+        // if me is not in the players list, then print error
+        if (!players.contains(me))
+        {
+            System.out.println("loadGame: me is not in the players list");
+        }
+        // get the scores
+        String scores = doc.getString("scores");
+        String[] scoresArr = scores.split(",");
+        for (int i=0; i<scoresArr.length; i++)
+        {
+            playerScores.put(players.get(i), Integer.parseInt(scoresArr[i]));
+        }
+        // get the hands
+        String hands = doc.getString("hands");
+        String[] handsArr = hands.split(",");
+        for (int i=0; i<handsArr.length; i++)
+        {
+            String hand = handsArr[i];
+            ArrayList<Tile> tiles = new ArrayList<>();
+            for (char c: hand.toCharArray())
+            {
+                tiles.add(bag.getTile(c));
+            }
+            playerHands.put(players.get(i), tiles);
+        }
+        // get the board
+        String boardStr = doc.getString("board");
+        String[] boardArr = boardStr.split(",");
+        for (int i=0; i<boardArr.length; i++)
+        {
+            String row = boardArr[i];
+            for (int j=0; j<row.length(); j++)
+            {
+                char c = row.charAt(j);
+                if (c != '-')
+                    board.setTile(bag.getTile(c), i, j);
+            }
+        }
+        // get the current player
+        String currentPlayer = doc.getString("currentPlayer");
+        curPlayerIndex = players.indexOf(currentPlayer);
+        curPlayerName = currentPlayer;
+        // get the number of players
+        String numPlayers = doc.getString("numPlayers");
+        n = Integer.parseInt(numPlayers);
+
+        //TODO: update the view and guests
+
+    }
 }

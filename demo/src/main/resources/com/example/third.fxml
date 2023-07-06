@@ -17,6 +17,7 @@
                 <Button fx:id="guestButton" text="Enter As Guest" onAction="#switchToSecondaryAsGuest" />
                 <Button fx:id="hostButton" text="Enter As Host" onAction="#switchToSecondaryAsHost" />
                 <Button fx:id="singlePlayerButton" text="Single player mode" onAction="#switchToSecondaryAsSinglePlayer" />
+                <Button fx:id="loadGameButton" text="Load Game as host" onAction="#switchToSecondaryLoadGameAsHost" />
                 <HBox>
                     <children>
                         <Label fx:id="roomNumberLabel" text="Enter room number" visible="false" />

@@ -115,6 +115,10 @@ public class Board {
 	public Tile[][] getTile(){
 		return Arrays.copyOf(board, board.length);
 	}
+
+	public void setTile(Tile t, int row, int col) {
+		board[row][col] = t;
+	}
 	
 	public boolean boardLegal(Word w) {
 		

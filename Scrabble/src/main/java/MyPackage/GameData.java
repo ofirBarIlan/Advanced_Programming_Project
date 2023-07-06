@@ -20,6 +20,7 @@ public class GameData implements Serializable {
 	ArrayList<String> hands;
 	ArrayList<String> board;
 	String currentPlayer;
+	int roomNumber;
 	
 	// Default constructor
 	public GameData() {
@@ -27,13 +28,14 @@ public class GameData implements Serializable {
 		
 	}
 	// Constructor
-	public GameData(ArrayList<String> names, ArrayList<Integer> scores, ArrayList<String> hands, ArrayList<String> board, Integer numPlayers, String currentPlayer){
+	public GameData(ArrayList<String> names, ArrayList<Integer> scores, ArrayList<String> hands, ArrayList<String> board, Integer numPlayers, String currentPlayer, int roomNumber){
 		this.names=names;
 		this.scores=scores;
 		this.numPlayers=numPlayers;
 		this.hands=hands;
 		this.board=board;
-		this.currentPlayer=currentPlayer;		
+		this.currentPlayer=currentPlayer;
+		this.roomNumber=roomNumber;		
 	}
 	
 	@Override
@@ -51,6 +53,7 @@ public class GameData implements Serializable {
 		document.append("hands",hands);
 		document.append("board", board);
 		document.append("currentPlayer", currentPlayer);
+		document.append("roomNumber", roomNumber);
 		
 		return document;
 	}
@@ -64,8 +67,10 @@ public class GameData implements Serializable {
 		
 		String currentPlayer = d.getString("currentPlayer");
 		Integer numPlayers = d.getInteger("numPlayers");
+
+		Integer roomNumber = d.getInteger("roomNumber");
 		
-		GameData gd = new GameData(names, scores, hands, board, numPlayers, currentPlayer);
+		GameData gd = new GameData(names, scores, hands, board, numPlayers, currentPlayer, roomNumber);
 		return gd;		
 	}
 	

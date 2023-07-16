@@ -106,11 +106,33 @@ public class BookScrabbleHandler implements ClientHandler{
         }else if (args[0].equals("L")) {
             // Get a reference to the collection
             MongoCollection<Document> game_collection = database.getCollection("GameSaves");
-            ArrayList<Document> list = getAllDocumentsMatching(game_collection,"roomNumber", args[1]);
-            for(Document d : list) {
-                System.out.println(d.toJson());
+            ArrayList<javax.swing.text.Document> list = getAllDocumentsMatching(game_collection,"roomNumber", args[1]);
+            
+            for (Document d: list) {
+            	System.out.println(d.toJson());
             }
-            out.println(list.get(0).toJson());
+            
+            Document doc = list.get(0);
+            // get the names
+            String names = doc.getString("names");
+            
+            // get the scores
+            String scores = doc.getString("scores");
+            
+            // get the hands
+            String hands = doc.getString("hands");
+            
+            // get the board
+            String boardStr = doc.getString("board");
+            
+            // get the current player
+            String currentPlayer = doc.getString("currentPlayer");
+            
+            // get the number of players
+            String numPlayers = doc.getString("numPlayers");
+
+            
+            out.println(names+","+scores+","+hands+","+boardStr+","+currentPlayer+","+numPlayers);
 
         }
         

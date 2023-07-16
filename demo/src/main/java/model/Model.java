@@ -1010,14 +1010,39 @@ public class Model extends Observable{
         me = name;
 
         String response = sendOnPort("L,"+roomNum, port); // TODO: return in models format
-        // convert json to Document
-        Document doc = Document.parse(response);
-        // get the names
-        String names = doc.getString("names");
-        String[] namesArr = names.split(",");
-        for (String name: namesArr)
+        
+        String[] args = response.split(",");
+        int numPlayers = Integer.parseInt(args[args.length-1]);
+        ArrayList<String> names = new ArrayList<String>();
+        for(int i=1; i<numPlayers+1; i++)
         {
-            players.add(name);
+            names.add(args[i]);
+        }
+
+        ArrayList<Integer> scores = new ArrayList<Integer>();
+        for(int i=numPlayers+1; i<2*numPlayers+1; i++)
+        {
+            scores.add(Integer.parseInt(args[i]));
+        }
+
+        ArrayList<String> hands = new ArrayList<String>();
+        for(int i=2*numPlayers+1; i<3*numPlayers+1; i++)
+        {
+            hands.add(args[i]);
+        }
+
+        ArrayList<String> board = new ArrayList<String>();
+        for(int i=3*numPlayers+1; i<3*numPlayers+16; i++)
+        {
+            board.add(args[i]);
+        }
+
+        String currentPlayer = args[args.length-2];
+        
+        
+        for (String n: names)
+        {
+            players.add(n);
         }
         // if me is not in the players list, then print error
         if (!players.contains(me))
@@ -1025,18 +1050,14 @@ public class Model extends Observable{
             System.out.println("loadGame: me is not in the players list");
         }
         // get the scores
-        String scores = doc.getString("scores");
-        String[] scoresArr = scores.split(",");
-        for (int i=0; i<scoresArr.length; i++)
+        for (int i=0; i<scores.size(); i++)
         {
-            playerScores.put(players.get(i), Integer.parseInt(scoresArr[i]));
+            playerScores.put(players.get(i), scores.get(i));
         }
         // get the hands
-        String hands = doc.getString("hands");
-        String[] handsArr = hands.split(",");
-        for (int i=0; i<handsArr.length; i++)
+        for (int i=0; i<hands.size(); i++)
         {
-            String hand = handsArr[i];
+            String hand = hands.get(i);
             ArrayList<Tile> tiles = new ArrayList<>();
             for (char c: hand.toCharArray())
             {
@@ -1045,27 +1066,26 @@ public class Model extends Observable{
             playerHands.put(players.get(i), tiles);
         }
         // get the board
-        String boardStr = doc.getString("board");
-        String[] boardArr = boardStr.split(",");
-        for (int i=0; i<boardArr.length; i++)
+        for (int i=0; i<board.size(); i++)
         {
-            String row = boardArr[i];
+            String row = board.get(i);
             for (int j=0; j<row.length(); j++)
             {
                 char c = row.charAt(j);
                 if (c != '-')
-                    board.setTile(bag.getTile(c), i, j);
+                    this.board.setTile(bag.getTile(c), i, j);
             }
         }
         // get the current player
-        String currentPlayer = doc.getString("currentPlayer");
         curPlayerIndex = players.indexOf(currentPlayer);
         curPlayerName = currentPlayer;
         // get the number of players
-        String numPlayers = doc.getString("numPlayers");
-        n = Integer.parseInt(numPlayers);
+        n = numPlayers;
 
         //TODO: update the view and guests
+        // notify view, we need to support this update on view side
+        setChanged();
+        notifyObservers("L,"+response);
 
     }
 }

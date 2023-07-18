@@ -246,7 +246,43 @@ public class ViewModel extends Observable implements Observer{
         } 
         else if(args[0].equals("Now it is your turn!")){
             pc.turnLabel.setText("Now it is your turn!");
-        } 
+        }
+        else if(args[0].equals("loadGame")){
+            // switch to primary controller
+            pc.switchToPrimary();
+            String letters = "";
+            for(char c: args[3].toCharArray()){
+                letters+=c+",";
+            }
+            // remove last comma
+            letters = letters.substring(0, letters.length() - 1);
+            handsLabel.set(letters);
+
+            for(int i=0; i<15; i++){
+                for(int j=0; j<15; j++){
+                    if(args[4+i].charAt(j)!='-'){
+                    	System.out.println("print: "+args[4+i].charAt(j)+"end");
+                        pc.updateBoard(""+args[4+i].charAt(j), "Right", i, j);
+                    }
+                }
+            }
+
+            // check if its player turn
+            if(args[args.length-1].equals("true")){
+                pc.turnLabel.setText("Now it is your turn!");
+            }
+            else{
+                pc.turnLabel.setText("Now it is NOT your turn!");
+            }
+
+            // set score
+            //scoreLabel.set(args[2]);
+            scoreLabel.set(String.valueOf(m.getScore()));
+
+        }
+        // else if(args[0].equals(("switchToPrimary"))){
+        //     pc.switchToPrimary();
+        // }
     }
 
     public void setCurPlayer(String curPlayer, boolean isMyTurn) {

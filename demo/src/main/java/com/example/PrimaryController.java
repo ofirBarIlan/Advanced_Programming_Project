@@ -236,4 +236,15 @@ public class PrimaryController extends Observable implements Initializable, Obse
         vm.saveGame();
     }
 
+    public void switchToPrimary() {
+        try {
+			App.setRoot("primary");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        App.stage.setScene(App.scene1);
+    }
+
+
 }

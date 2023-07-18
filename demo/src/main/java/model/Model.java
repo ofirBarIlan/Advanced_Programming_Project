@@ -52,6 +52,7 @@ public class Model extends Observable{
 
     // List of all players in the game
     ArrayList<String> players = new ArrayList<String>();
+    ArrayList<String> playersConnectedLoadGame = new ArrayList<String>();
     // Create the dictionary to store player hands
     Map<String, ArrayList<Tile>> playerHands = new HashMap<>();
 
@@ -70,6 +71,8 @@ public class Model extends Observable{
     private String resp;
     private int port;
     private int[] pos;
+    
+    boolean isLoadGame = false;
 
     public class Result {
         public int score;
@@ -249,6 +252,8 @@ public class Model extends Observable{
         if(gameState != GameState.Idle){
             return false;
         }
+        
+        playerHands.put(me, new ArrayList<Tile>());
 
         // Connect to the host server
         try{
@@ -359,6 +364,23 @@ public class Model extends Observable{
                                 }
                             }
                         }
+                        else if (args[0].equals("loadGame")) {
+                            //System.out.println("got to:" + message);
+                            if(args[1].equals(me)){
+                            	totalScore = Integer.parseInt(args[2]);
+                                String tilesToPick = args[3];
+                                playerHands.put(me, new ArrayList<Tile>());
+                                for (char c: tilesToPick.toCharArray()){
+                                    playerHands.get(me).add(bag.getBag().getTile(c));
+                                }
+                                if (!testMode){
+                                    Platform.runLater(() -> {
+                                        setChanged();
+                                        notifyObservers(message);
+                                    });  
+                                }
+                            }
+                        }
                     }
                 }
             });
@@ -383,7 +405,7 @@ public class Model extends Observable{
             this.roomNumber = roomNumber;
             this.isHost = false;
             gameState = GameState.WAITING_FOR_START;
-            playerHands.put(me, new ArrayList<Tile>());
+            //playerHands.put(me, new ArrayList<Tile>());
         }
 
         return result;
@@ -421,7 +443,54 @@ public class Model extends Observable{
         // Set the game state
         gameState = GameState.WAITING_FOR_START;
 
-        players.add(name);
+        if(isLoadGame)
+        {
+        	//check if player is in players
+            if(players.contains(name))
+            {
+                playersConnectedLoadGame.add(name);
+                String boardStr = "";
+                for (int i=0; i<15; i++)
+                {
+                    for (int j=0; j<15; j++)
+                    {
+                        if (board.getTile()[i][j] != null)
+                            boardStr += board.getTile()[i][j].letter;
+                        else
+                            boardStr += "-";
+                    }
+                    boardStr += ",";
+                }
+                // Delete last comma
+                boardStr = boardStr.substring(0, boardStr.length()-1);
+                
+                String isGuestTurn = "false";
+                if(curPlayerName.equals(name))
+                {
+                    isGuestTurn = "true";
+                }
+                
+                String hand ="";
+                for(Tile t : playerHands.get(name))
+                {
+                    hand += t.letter;
+                }
+                
+                notifyGuests("loadGame,"+name+","+playerScores.get(name)+","+hand+","+boardStr+","+isGuestTurn);
+                if(playersConnectedLoadGame.size() == players.size())
+                {
+                    isLoadGame = false;
+                    playersConnectedLoadGame.clear();
+                    // setChanged();
+                    // notifyObservers("switchToPrimary");
+                }
+            }
+        }
+        else
+        {
+            players.add(name);
+        }
+        
         return true;
     }
 
@@ -991,6 +1060,7 @@ public class Model extends Observable{
     }
 
     public void loadGame(String name, int roomNum, int port){
+    	isLoadGame = true;
         // Check if the game is in the correct state
         // if(gameState != GameState.Idle){
         //     return -1;
@@ -1011,28 +1081,30 @@ public class Model extends Observable{
 
         String response = sendOnPort("L,"+roomNum, port); // TODO: return in models format
         
+        System.out.println(response);
+        
         String[] args = response.split(",");
         int numPlayers = Integer.parseInt(args[args.length-1]);
         ArrayList<String> names = new ArrayList<String>();
-        for(int i=1; i<numPlayers+1; i++)
+        for(int i=0; i<numPlayers; i++)
         {
             names.add(args[i]);
         }
 
         ArrayList<Integer> scores = new ArrayList<Integer>();
-        for(int i=numPlayers+1; i<2*numPlayers+1; i++)
+        for(int i=numPlayers; i<2*numPlayers; i++)
         {
             scores.add(Integer.parseInt(args[i]));
         }
 
         ArrayList<String> hands = new ArrayList<String>();
-        for(int i=2*numPlayers+1; i<3*numPlayers+1; i++)
+        for(int i=2*numPlayers; i<3*numPlayers; i++)
         {
             hands.add(args[i]);
         }
 
         ArrayList<String> board = new ArrayList<String>();
-        for(int i=3*numPlayers+1; i<3*numPlayers+16; i++)
+        for(int i=3*numPlayers; i<3*numPlayers+15; i++)
         {
             board.add(args[i]);
         }
@@ -1082,10 +1154,27 @@ public class Model extends Observable{
         // get the number of players
         n = numPlayers;
 
-        //TODO: update the view and guests
+        playersConnectedLoadGame.add(me);
+
+        String isPlayerTurn = curPlayerName.equals(me) ? "true" : "false";
+        String boardStr = "";
+        for (int i=0; i<15; i++)
+        {
+            for (int j=0; j<15; j++)
+            {
+                if (this.board.getTile()[i][j] != null)
+                    boardStr += this.board.getTile()[i][j].letter;
+                else
+                    boardStr += "-";
+            }
+            boardStr += ",";
+        }
+        // Delete last comma
+        boardStr = boardStr.substring(0, boardStr.length()-1);
+        totalScore = playerScores.get(me);
         // notify view, we need to support this update on view side
         setChanged();
-        notifyObservers("L,"+response);
+        notifyObservers("loadGame,"+me+","+playerScores.get(me)+","+hands.get(players.indexOf(me))+","+boardStr+","+isPlayerTurn);
 
     }
 }

@@ -42,6 +42,7 @@ public class MyServer {
 		}		
 		executor = Executors.newFixedThreadPool(this.maxThreads); // the thread pool that will handle the clients (the maximum number of clients that will be handled parallelly is maxThreads)
 		new Thread(()->startsServer()).start(); //start the server's operation in the background (in new thread)
+		System.out.println("game started");
 	}
 	
 	private void startsServer() {

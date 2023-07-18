@@ -183,6 +183,7 @@ public class ThirdController {
 
         String name = nameTextField.getText();
         String portNum = portNumberTextField.getText();
+        String roomNum = roomNumberTextField.getText();
 
         // Check if the port number is valid (not empty and numeric)
         if (portNum.isEmpty()) {
@@ -198,16 +199,11 @@ public class ThirdController {
         
         errorLabel.setVisible(false);
 
-        // Join the room
-        if(vm.startRoomFromModel(name, Integer.parseInt(portNumberTextField.getText())) > 0){
+        // Load game
+        vm.loadGame(name, Integer.parseInt(roomNum), Integer.parseInt(portNum));
                         
-            App.setRoot("secondary");
-            App.stage.setScene(App.scene2);
-        }
-        else{
-            errorLabel.setText("Invalid data, try again");
-            errorLabel.setVisible(true);
-        }
+        App.setRoot("primary");
+        App.stage.setScene(App.scene1);    
     }
 
 }

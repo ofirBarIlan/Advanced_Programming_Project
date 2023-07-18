@@ -4,6 +4,7 @@ package test;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -36,10 +37,10 @@ public class BookScrabbleHandler implements ClientHandler{
         
         Scanner in = new Scanner(inFromClient);
         PrintWriter out = new PrintWriter(outToClient);
-        //System.out.println("handle client");
+        System.out.println("handle client");
         String line = in.nextLine();
         String[] args = line.split(",");
-        //System.out.println("after next line");
+//        System.out.println("after next line");
 
         String[] booksAndWord = new String[args.length - 1];
         //get all the args except the first one
@@ -47,6 +48,7 @@ public class BookScrabbleHandler implements ClientHandler{
             booksAndWord[i - 1] = args[i];
         }
         
+        System.out.println("before Q");
         if (args[0].equals("Q")) {
             //System.out.println("got word "+booksAndWord[booksAndWord.length-1]);
             boolean found = DictionaryManager.get().query(booksAndWord);
@@ -99,14 +101,12 @@ public class BookScrabbleHandler implements ClientHandler{
             System.out.println(gd.getNames());
             // Insert the document into the collection
             game_collection.insertOne(gameDocument);
-            
-            //Document playerdoc = player_collection.find(Filters.eq("name", "dani")).first();
-            System.out.println(getAllDocumentsMatching(game_collection,"currentPlayer","Tomer"));       
+               
 
         }else if (args[0].equals("L")) {
             // Get a reference to the collection
             MongoCollection<Document> game_collection = database.getCollection("GameSaves");
-            ArrayList<javax.swing.text.Document> list = getAllDocumentsMatching(game_collection,"roomNumber", args[1]);
+            ArrayList<Document> list = getAllDocumentsMatching(game_collection,"roomNumber", Integer.parseInt(args[1]));
             
             for (Document d: list) {
             	System.out.println(d.toJson());
@@ -114,25 +114,49 @@ public class BookScrabbleHandler implements ClientHandler{
             
             Document doc = list.get(0);
             // get the names
-            String names = doc.getString("names");
-            
+            ArrayList<String> names = (ArrayList<String>) doc.get("names");
+            // convert to string
+            String namesStr = "";
+            for(String n :names)
+            {
+                namesStr += n + ",";
+            }
+
             // get the scores
-            String scores = doc.getString("scores");
+            ArrayList<Integer> scores = (ArrayList<Integer>) doc.get("scores");
+            // convert to string
+            String scoresStr = "";
+            for(Integer s :scores)
+            {
+                scoresStr += s + ",";
+            }
             
             // get the hands
-            String hands = doc.getString("hands");
+            ArrayList<String> hands = (ArrayList<String>) doc.get("hands");
+            // convert to string
+            String handsStr = "";
+            for(String h :hands)
+            {
+                handsStr += h + ",";
+            }
             
             // get the board
-            String boardStr = doc.getString("board");
+            ArrayList<String> board = (ArrayList<String>) doc.get("board");
+            // convert to string
+            String boardStr = "";
+            for(String b :board)
+            {
+                boardStr += b + ",";
+            }
             
             // get the current player
             String currentPlayer = doc.getString("currentPlayer");
             
             // get the number of players
-            String numPlayers = doc.getString("numPlayers");
+            int numPlayers = doc.getInteger("numPlayers");
 
             
-            out.println(names+","+scores+","+hands+","+boardStr+","+currentPlayer+","+numPlayers);
+            out.println(namesStr+scoresStr+handsStr+boardStr+currentPlayer+","+numPlayers);
 
         }
         
@@ -148,7 +172,18 @@ public class BookScrabbleHandler implements ClientHandler{
         
     }
 
+    // find matching for strings
     static ArrayList<Document> getAllDocumentsMatching(MongoCollection<Document> player_collection,String fieldName,String fieldValue){
+        ArrayList<Document> list=new ArrayList<Document>();
+        MongoCursor<Document> it=player_collection.find(Filters.eq(fieldName, fieldValue)).iterator();
+        while(it!=null&&it.hasNext()) {
+            list.add(it.next());
+        }
+        return list;
+	}
+    
+    // find matching for int
+    static ArrayList<Document> getAllDocumentsMatching(MongoCollection<Document> player_collection,String fieldName,int fieldValue){
         ArrayList<Document> list=new ArrayList<Document>();
         MongoCursor<Document> it=player_collection.find(Filters.eq(fieldName, fieldValue)).iterator();
         while(it!=null&&it.hasNext()) {

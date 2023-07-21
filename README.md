@@ -1,5 +1,5 @@
 # Java Scrabble Project
-This repository contains a Scrabble application developed using the MVVM (Model-View-ViewModel) architecture. The application allows players to interact with a user-friendly GUI built with JavaFX, where they can play the game and receive real-time feedback on word validity and points.
+This repository contains a Scrabble application developed using the MVVM (Model-View-ViewModel) architecture. The application allows players to interact with a user-friendly GUI built with JavaFX, where they can play the game and receive real-time feedback on word validity and points. The players can play alone, or alongside other players through a web application. In addition, games can be saved and loaded as the players wish.
 
 # Architecture Overview
 The Scrabble app follows the MVVM architecture pattern, which separates the concerns of the user interface (View) from the underlying logic and data (Model). The ViewModel acts as the mediator between the View and the Model.
@@ -19,17 +19,19 @@ git clone https://github.com/ofirBarIlan/Advanced_Programming_Project.git
 
 Ensure you have Java Development Kit (JDK) installed on your system.
 
+Install the MongoDB client, and make sure that you can access the database in order to enable save and load feature.
+
 Build the project and resolve any dependencies if necessary.
 
 Run the application in the following way:
 
-  Run the server, in a java class called ServerRun.java
+- Run the server, in a java class called ServerRun.java
   
-  Run the users, in the App.java class
+- Run the users, in the App.java class
   
-  A GUI will open up. Decide if playing as guest or host, single or multiplayer, and enter port and room number, as well as name.
+- A GUI will open up. Decide if playing as guest or host, single or multiplayer, and enter port number, as well as name and if to create a new game or to load an existing game.
   
-  Enjoy!
+Enjoy!
 
 # Acknowledgements
 Ofir, Bar, Yanai, Tomer 
@@ -37,5 +39,5 @@ Ofir, Bar, Yanai, Tomer
 # Division into sub-teams + GANTT chart
 [Division into sub-teams + GANTT chart.xlsx](https://github.com/ofirBarIlan/Advanced_Programming_Project/files/11585305/Division.into.sub-teams.%2B.GANTT.chart.xlsx)
 
-# Link to video
-https://drive.google.com/drive/folders/1ajps3Ipx0R0s2IYRQlPyUKQ_JZOzOLW5?usp=sharing
+# Link to video and the presentation
+https://drive.google.com/drive/folders/1gG60Xp2j-INrTy-UsE_x-uVzrwb1MLcj?usp=sharing

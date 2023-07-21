@@ -39,7 +39,6 @@ public class ThirdController {
     private Label portNumberLabel;
     @FXML
     private TextField portNumberTextField;
-
     @FXML
     private BorderPane rootPane;
 
@@ -49,7 +48,6 @@ public class ThirdController {
         guestButton.disableProperty().bind(nameTextField.textProperty().isEmpty());
         hostButton.disableProperty().bind(nameTextField.textProperty().isEmpty());
         singlePlayerButton.disableProperty().bind(nameTextField.textProperty().isEmpty());   
-
         
         String root = System.getProperty("user.dir")+"\\src\\main\\";
         InputStream stream;
@@ -61,10 +59,8 @@ public class ThirdController {
             rootPane.setBackground(background);           
 
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }    
-
     }
 
     @FXML
@@ -87,12 +83,10 @@ public class ThirdController {
             return;
         }
         
-        
         errorLabel.setVisible(false);
 
         // Join the room
         if(vm.startRoomFromModel(name, Integer.parseInt(portNumberTextField.getText())) > 0){
-                        
             App.setRoot("secondary");
             App.stage.setScene(App.scene2);
         }
@@ -100,7 +94,6 @@ public class ThirdController {
             errorLabel.setText("Invalid data, try again");
             errorLabel.setVisible(true);
         }
-        
     }
 
     @FXML
@@ -111,35 +104,17 @@ public class ThirdController {
         vm.startGame();
         App.setRoot("primary");
         App.stage.setScene(App.scene1);
-        
     }
 
     @FXML
     private void switchToSecondaryAsGuest() throws IOException {
-        // Show room number label+text field
-        // roomNumberLabel.setVisible(true); 
-        // roomNumberTextField.setVisible(true);
-
         // Show port number label+text field
         portNumberLabel.setVisible(true);
         portNumberTextField.setVisible(true);
 
         String name = nameTextField.getText();
-        // String roomNum = roomNumberTextField.getText();
         String portNum = portNumberTextField.getText();
         
-        
-        
-        // Check if the room number is valid (not empty and numeric)
-        // if (roomNum.isEmpty()) {
-        //     errorLabel.setText("Empty room number");
-        //     errorLabel.setVisible(true);
-        //     return;
-        // } else if (!roomNum.matches("\\d+")) {
-        //     errorLabel.setText("Room must be a valid number");
-        //     errorLabel.setVisible(true);
-        //     return;
-        // }
         // Check if the port number is valid (not empty and numeric)
         if (portNum.isEmpty()) {
             errorLabel.setText("Empty port number");
@@ -151,14 +126,11 @@ public class ThirdController {
             return;
         }
         
-        
         errorLabel.setVisible(false);
         
         // Join the room
         name = nameTextField.getText();
         if(vm.joinRoomFromModel(Integer.parseInt("0"), Integer.parseInt(portNumberTextField.getText()), name)){
-            
-            
             App.setRoot("secondary");
             App.stage.setScene(App.scene2);
         }
@@ -166,9 +138,6 @@ public class ThirdController {
             errorLabel.setText("Invalid data, try again");
             errorLabel.setVisible(true);
         }
-
-        
-
     }
 
     @FXML
@@ -195,15 +164,11 @@ public class ThirdController {
             errorLabel.setVisible(true);
             return;
         }
-        
-        
         errorLabel.setVisible(false);
 
         // Load game
         vm.loadGame(name, Integer.parseInt(roomNum), Integer.parseInt(portNum));
-                        
         App.setRoot("primary");
         App.stage.setScene(App.scene1);    
     }
-
 }

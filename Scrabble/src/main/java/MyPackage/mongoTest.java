@@ -50,7 +50,7 @@ public class mongoTest {
 		
 		String currentPlayer = "Tomer";
 		
-		GameData gd=new GameData(names, scores, hands, board, numPlayers, currentPlayer);
+		GameData gd=new GameData(names, scores, hands, board, numPlayers, currentPlayer,0);
 		//MyPlayer p2=new MyPlayer("dani");
 		//MyPlayer p3=new MyPlayer("moshon");
 		Document gameDocument = gd.toDocument();

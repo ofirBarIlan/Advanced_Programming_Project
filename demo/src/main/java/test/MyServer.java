@@ -56,8 +56,6 @@ public class MyServer {
 
             // Send the request
             		//int responseCode = connection.getResponseCode();
-
-					System.out.println("Connection acquired");
 					// handle the client parallelly as a new task of the thread pool
 					executor.execute(()->{
 						try {

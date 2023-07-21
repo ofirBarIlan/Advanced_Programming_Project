@@ -96,13 +96,11 @@ public class PrimaryController extends Observable implements Initializable, Obse
     IntegerProperty col;
     BooleanProperty isValid;
 
-
     // Constructor - happens only once
     public PrimaryController(){   
         row = new SimpleIntegerProperty();
         col = new SimpleIntegerProperty();
         isValid = new SimpleBooleanProperty();
-       
     }
 
     void init(ViewModel vm){
@@ -119,12 +117,10 @@ public class PrimaryController extends Observable implements Initializable, Obse
         vm.col.bind(col);
         vm.row.bind(row);
         vm.sendButton.bind(sendButton.pressedProperty());
-        // vm.challengeButton.bind(challengeButton.pressedProperty());
         
         // Bind view with vm
         scoreLabel.textProperty().bind(vm.scoreLabel);
         handsLabel.textProperty().bind(vm.handsLabel);
-        
 
         EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() { 
             @Override 
@@ -146,16 +142,18 @@ public class PrimaryController extends Observable implements Initializable, Obse
         instructionLabel.setFont(customFont);        
         
         boardDisplayer.addEventFilter(MouseEvent.MOUSE_CLICKED, eventHandler);
-        
     }
     
     public void setHand(String letters){
         handsLabel.setText(letters);
     }
+
+    // Sets the col of the mouse click
     protected void setCol(SimpleIntegerProperty simpleIntegerProperty) {
         col.set((int)Math.floor((simpleIntegerProperty.getValue()*boardData.length)/boardDisplayer.getWidth()));
     }
 
+    // Sets the row of the mouse click
     protected void setRow(SimpleIntegerProperty simpleIntegerProperty) {
         row.set((int)Math.floor((simpleIntegerProperty.getValue()*boardData[0].length)/boardDisplayer.getHeight()));
     }
@@ -171,15 +169,13 @@ public class PrimaryController extends Observable implements Initializable, Obse
         throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
 
+    // Update the board with the word
     public void updateBoard() {
         
             // go over word
             String wordValue = word.getText();
-            //System.out.println(wordValue);
             String directionValue = vm.direction.getValue();
             
-            //System.out.println(directionValue);
-
             for (int i = 0; i < wordValue.length(); i++) {
                 if (wordValue.charAt(i) != '_') {
                     char letter = Character.toLowerCase(wordValue.charAt(i));
@@ -193,11 +189,10 @@ public class PrimaryController extends Observable implements Initializable, Obse
                     row.set(row.get() + 1);
                 }
             }
-            boardDisplayer.setBoardData(boardData);       
-        
-        
+            boardDisplayer.setBoardData(boardData);     
     }
 
+    // Update the board with the word - for the load game
     public void updateBoard(String word, String dir, int row, int col) {
                 
         for (int i = 0; i < word.length(); i++) {
@@ -213,38 +208,36 @@ public class PrimaryController extends Observable implements Initializable, Obse
                 row++;
             }
         }
-        boardDisplayer.setBoardData(boardData);       
-    
-    
+        boardDisplayer.setBoardData(boardData);   
     }
 
     public void setScore(Object score) {
     }
 
+    // checks if the word is in the dictionary
     public void onChallenge(){
         vm.challengeButton();
         challengeButton.setVisible(false);
-        
     }
 
+    // skips the turn
     public void skipTurn(){
         vm.skipTurn();
         challengeButton.setVisible(false);
     }
 
+    // saves the game
     public void onSaveGame(){
         vm.saveGame();
     }
 
+    // switches to the game screen
     public void switchToPrimary() {
         try {
 			App.setRoot("primary");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         App.stage.setScene(App.scene1);
     }
-
-
 }

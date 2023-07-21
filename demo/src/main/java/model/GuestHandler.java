@@ -14,18 +14,18 @@ public class GuestHandler implements ClientHandler{
 	Scanner in;
     static Model host;
 
+    // Constructor
     public GuestHandler() {
     }
 
+    // setter for host
     public void setHost(Model h) {
         this.host = h;
     }
 
+    // handles the client
     @Override
     public void handleClient(InputStream inFromClient, OutputStream outToClient) {
-        
-        //System.out.println("handle client");
-
         in = new Scanner(inFromClient);
         out = new PrintWriter(outToClient);
         boolean close = false;
@@ -35,7 +35,6 @@ public class GuestHandler implements ClientHandler{
             String[] args = line.split(",");
 
             if (args[0].equals("joinGame")) {
-                //System.out.println("Join game");
                 assert false;
                 int roomNumber = Integer.parseInt(args[1]);
                 String name = args[2];
@@ -72,14 +71,11 @@ public class GuestHandler implements ClientHandler{
             } else if (args[0].equals("close")) {
                 close = true;
             } else if (args[0].equals("skip")){
-                //System.out.println("got to skip");
                 host.skipTurn();
             }
 
-
             out.flush();
         }
-        
     }
 
     @Override

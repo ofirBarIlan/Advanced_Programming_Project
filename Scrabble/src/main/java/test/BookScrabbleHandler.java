@@ -21,13 +21,13 @@ import com.mongodb.client.MongoCollection;
 import MyPackage.GameData;
 
 public class BookScrabbleHandler implements ClientHandler{
-
-		
 	// Connection settings
 	public static String connectionString = "mongodb://localhost:27017";
 	public static String databaseName = "MyDatabase";
+
 	// Create a MongoDB client
 	public static MongoClient  mongoClient = MongoClients.create(connectionString);
+
 	// Get a reference to the database
 	public static MongoDatabase  database = mongoClient.getDatabase(databaseName);
 			
@@ -37,10 +37,8 @@ public class BookScrabbleHandler implements ClientHandler{
         
         Scanner in = new Scanner(inFromClient);
         PrintWriter out = new PrintWriter(outToClient);
-        System.out.println("handle client");
         String line = in.nextLine();
         String[] args = line.split(",");
-//        System.out.println("after next line");
 
         String[] booksAndWord = new String[args.length - 1];
         //get all the args except the first one
@@ -48,9 +46,7 @@ public class BookScrabbleHandler implements ClientHandler{
             booksAndWord[i - 1] = args[i];
         }
         
-        System.out.println("before Q");
         if (args[0].equals("Q")) {
-            //System.out.println("got word "+booksAndWord[booksAndWord.length-1]);
             boolean found = DictionaryManager.get().query(booksAndWord);
             if (found) {
                 out.println("true");
@@ -98,23 +94,19 @@ public class BookScrabbleHandler implements ClientHandler{
             Document gameDocument = gd.toDocument();
             // Get a reference to the collection
             MongoCollection<Document> game_collection = database.getCollection("GameSaves");
-            System.out.println(gd.getNames());
+
             // Insert the document into the collection
             game_collection.insertOne(gameDocument);
-               
-
         }else if (args[0].equals("L")) {
             // Get a reference to the collection
             MongoCollection<Document> game_collection = database.getCollection("GameSaves");
             ArrayList<Document> list = getAllDocumentsMatching(game_collection,"roomNumber", Integer.parseInt(args[1]));
-            
-            for (Document d: list) {
-            	System.out.println(d.toJson());
-            }
-            
+                        
             Document doc = list.get(0);
+
             // get the names
             ArrayList<String> names = (ArrayList<String>) doc.get("names");
+
             // convert to string
             String namesStr = "";
             for(String n :names)
@@ -124,6 +116,7 @@ public class BookScrabbleHandler implements ClientHandler{
 
             // get the scores
             ArrayList<Integer> scores = (ArrayList<Integer>) doc.get("scores");
+
             // convert to string
             String scoresStr = "";
             for(Integer s :scores)
@@ -133,6 +126,7 @@ public class BookScrabbleHandler implements ClientHandler{
             
             // get the hands
             ArrayList<String> hands = (ArrayList<String>) doc.get("hands");
+
             // convert to string
             String handsStr = "";
             for(String h :hands)
@@ -142,6 +136,7 @@ public class BookScrabbleHandler implements ClientHandler{
             
             // get the board
             ArrayList<String> board = (ArrayList<String>) doc.get("board");
+
             // convert to string
             String boardStr = "";
             for(String b :board)
@@ -154,25 +149,21 @@ public class BookScrabbleHandler implements ClientHandler{
             
             // get the number of players
             int numPlayers = doc.getInteger("numPlayers");
-
             
             out.println(namesStr+scoresStr+handsStr+boardStr+currentPlayer+","+numPlayers);
-
         }
         
         out.flush();
         in.close();
-        out.close();
-        
+        out.close();        
     }
 
     @Override
     public void close() {
-        // TODO Auto-generated method stub
         
     }
 
-    // find matching for strings
+    // Find matching for strings
     static ArrayList<Document> getAllDocumentsMatching(MongoCollection<Document> player_collection,String fieldName,String fieldValue){
         ArrayList<Document> list=new ArrayList<Document>();
         MongoCursor<Document> it=player_collection.find(Filters.eq(fieldName, fieldValue)).iterator();
@@ -182,7 +173,7 @@ public class BookScrabbleHandler implements ClientHandler{
         return list;
 	}
     
-    // find matching for int
+    // Find matching for int
     static ArrayList<Document> getAllDocumentsMatching(MongoCollection<Document> player_collection,String fieldName,int fieldValue){
         ArrayList<Document> list=new ArrayList<Document>();
         MongoCursor<Document> it=player_collection.find(Filters.eq(fieldName, fieldValue)).iterator();

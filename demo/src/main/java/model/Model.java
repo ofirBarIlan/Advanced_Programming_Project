@@ -1,8 +1,4 @@
-
-
-
 // Create the Model class here. The model represents the data that the application uses. (MVVM)
-
 package model;
 
 import java.io.IOException;
@@ -38,41 +34,37 @@ public class Model extends Observable{
     GameState gameState;
     PrintWriter outToServer;
     Scanner inFromServer;
-    Socket socket;
-    int roomNumber;
+    Socket socket;    
     MyServer hostServer;
-    int scoreCalculated;
-    int totalScore=0;
     ErrorType error;
-    boolean isHost = false;
     // Board information
     Board board;
-
     Tile.Bag bag;
 
     // List of all players in the game
     ArrayList<String> players = new ArrayList<String>();
     ArrayList<String> playersConnectedLoadGame = new ArrayList<String>();
+    
     // Create the dictionary to store player hands
     Map<String, ArrayList<Tile>> playerHands = new HashMap<>();
 
     //Create the dictionary to store player scores
     Map<String, Integer> playerScores = new HashMap<>();
 
+    int scoreCalculated;
+    int totalScore=0;
+    int roomNumber;
     int curPlayerIndex = 0;
     String curPlayerName;
     String me;
+    boolean isHost = false;
+    boolean isLoadGame = false;
     private boolean tryWordFlag;
-
     private boolean testMode = false;
-
-
     private boolean respValid;
     private String resp;
     private int port;
-    private int[] pos;
-    
-    boolean isLoadGame = false;
+    private int[] pos;    
 
     public class Result {
         public int score;
@@ -110,17 +102,9 @@ public class Model extends Observable{
             return -1;
         }
         gameState = GameState.WAITING_FOR_PLAYERS;
-        // try{
-        //     this.socket=new Socket("localhost", port);
-        //     this.outToServer=new PrintWriter(socket.getOutputStream());
-        //     this.inFromServer=new Scanner(socket.getInputStream());
-        // }catch (Exception e){
-        //     //System.out.println("startRoom: Could not connect to server");
-        // }
         // Generate a random room number
         int roomNumber = (int)(Math.random() * 100000);
         this.roomNumber = roomNumber;
-        //System.out.println(roomNumber);
         this.isHost = true;
         startServer(port);
         me = name;
@@ -129,7 +113,6 @@ public class Model extends Observable{
     }
 
     public void startServer(int port){
-        //System.out.println("entered startserver");
         assert isHost;
         ClientHandler gh = new GuestHandler();
         ((GuestHandler)gh).setHost(this);
@@ -143,7 +126,7 @@ public class Model extends Observable{
         {
             // Initialize player's hand with random Tiles
             ArrayList<Tile> handTiles = new ArrayList<>();
-            for (int i = 0; i < 20; i++) {
+            for (int i = 0; i < 7; i++) {
                 handTiles.add(bag.getRand());
             }
             
@@ -186,11 +169,9 @@ public class Model extends Observable{
 
         // Set the game state
         gameState = GameState.PLAYING;
-
-        // Notify the guests that the game has started
-        // TODO
     }
 
+    // determine the order of the players
     private void determineTurns() {
         String letters = "";
         Map<Character, String> playersStartingLetter = new HashMap<>();
@@ -215,7 +196,6 @@ public class Model extends Observable{
 
         for(char c : charArray){
             newOrder.add(playersStartingLetter.get(c));
-            //System.out.println("turn: " +playersStartingLetter.get(c));
         }
 
         players=newOrder;   
@@ -227,7 +207,6 @@ public class Model extends Observable{
         else{
             notifyGuests("yourTurn," + players.get(0));
         }
-        
     }
 
     // Single player version
@@ -253,8 +232,9 @@ public class Model extends Observable{
             return false;
         }
         
+        me = name;
         playerHands.put(me, new ArrayList<Tile>());
-
+        
         // Connect to the host server
         try{
             this.socket=new Socket("localhost", port);
@@ -343,7 +323,6 @@ public class Model extends Observable{
                             }                                                       
                         }
                         else if (args[0].equals("yourTurn")){
-                            //System.out.println("got to:" + message);
                             if(args[1].equals(me)){
                                 if (!testMode){
                                     Platform.runLater(() -> {
@@ -354,7 +333,6 @@ public class Model extends Observable{
                             }
                         }
                         else if (args[0].equals("notYourTurn")){
-                            //System.out.println("got to:" + message);
                             if(args[1].equals(me)){
                                 if (!testMode){
                                     Platform.runLater(() -> {
@@ -365,7 +343,6 @@ public class Model extends Observable{
                             }
                         }
                         else if (args[0].equals("loadGame")) {
-                            //System.out.println("got to:" + message);
                             if(args[1].equals(me)){
                             	totalScore = Integer.parseInt(args[2]);
                                 String tilesToPick = args[3];
@@ -386,18 +363,14 @@ public class Model extends Observable{
             });
             t.start();
         }catch (Exception e){
-            //System.out.println("joinGameAsGuest: could not connect to the host server");
         }
-        me = name;
 
         // Send Connect request to the host, with the room number
         outToServer.println("joinGame,"+roomNumber+","+name);
         outToServer.flush();
 
-        //System.out.println(port);
         // Get the response from the host
         String response=getResponseFromHost();
-        //System.out.println("test2");
 
         // Parse the response
         Boolean result = Boolean.parseBoolean(response);
@@ -405,7 +378,6 @@ public class Model extends Observable{
             this.roomNumber = roomNumber;
             this.isHost = false;
             gameState = GameState.WAITING_FOR_START;
-            //playerHands.put(me, new ArrayList<Tile>());
         }
 
         return result;
@@ -421,7 +393,6 @@ public class Model extends Observable{
             try{
                 Thread.sleep(100);
             }catch (Exception e){
-                //System.out.println("getResponse exception");
             }
         }
         this.respValid = false;
@@ -435,11 +406,6 @@ public class Model extends Observable{
         if(gameState != GameState.WAITING_FOR_PLAYERS && gameState != GameState.WAITING_FOR_START){
             return false;
         }
-        // Check if the room number is correct
-        // if(this.roomNumber != roomNumber){
-        //     return false;
-        // }
-
         // Set the game state
         gameState = GameState.WAITING_FOR_START;
 
@@ -481,8 +447,6 @@ public class Model extends Observable{
                 {
                     isLoadGame = false;
                     playersConnectedLoadGame.clear();
-                    // setChanged();
-                    // notifyObservers("switchToPrimary");
                 }
             }
         }
@@ -593,6 +557,7 @@ public class Model extends Observable{
         return tilesArray;
     }
 
+    // challengeVM is called when the player clicks on the challenge button
     public void challengeVM(String word, String direction ){
         word = word.toUpperCase();
         int row = pos[0];
@@ -605,7 +570,6 @@ public class Model extends Observable{
            challengeAsGuest(word, me, direction, row, col);
         }
     }
-
 
     // Create function tryWord here. This function will take in a word (string), a direction (boolean), and a position ((int, int)) and return a boolean.
     // This function will check if the word is in the dictionary and if it is, it will check if the word can be placed in the board at the given position and direction.
@@ -636,6 +600,7 @@ public class Model extends Observable{
         return new Result(scoreCalculated, error);
     }
 
+    // Updates everything in the game
     private void updateAll(String name, String word, boolean isRight, int[] position, int scoreCalculated) {
         // remove tiles from player's hand (only if the tile is not "_")
         for(char c : word.toCharArray()){
@@ -697,6 +662,7 @@ public class Model extends Observable{
         nextPlayer();
     }
 
+    // challenge for host
     public boolean challenge(String word, String name, String direction, int row, int col){
         assert isHost;
         // Check if it is the player's turn
@@ -747,6 +713,7 @@ public class Model extends Observable{
         return !flag;
     }
 
+    // Try placing the word for guest
     public Result tryWordAsGuest(String word, boolean isRight, int[] position, String name){
         assert !isHost;
         // Send the word, direction, and position to the server
@@ -767,6 +734,7 @@ public class Model extends Observable{
         outToServer.flush();
     }
 
+    // Challenge for guest
     public boolean challengeAsGuest(String word, String name, String direction, int row, int col){
         assert !isHost;
         // Send the word to the server
@@ -805,7 +773,6 @@ public class Model extends Observable{
             String response=inFromServer.next();
             return response;
         }catch (Exception e){
-            //System.out.println("sendOnPort exception");
         }
         return null;
     }
@@ -863,113 +830,8 @@ public class Model extends Observable{
         notifyGuests("gameEnd,");
     }
 
-
-    // Unit tests, to test the functions in the class
-    public static void main(String[] args) {
-        int serverPort = 6200;
-        int hostPort = 6100;
-        String host = "host";
-        String guest1 = "guest1";
-        Model hostModel = new Model(serverPort);
-        Model guestModel1 = new Model(hostPort);
-
-        // create observers
-        Observer hostView = new Observer() {
-            @Override
-            public void update(Observable o, Object arg) {
-                //System.out.println("hostView: " + arg);
-            }
-        };
-
-        Observer guestView1 = new Observer() {
-            @Override
-            public void update(Observable o, Object arg) {
-                //System.out.println("guestView1: " + arg);
-            }
-        };
-
-        // add the observables to the observers
-        hostModel.addObserver(hostView);
-        guestModel1.addObserver(guestView1);
-        
-
-        hostModel.setTestMode();
-        guestModel1.setTestMode();
-
-        // test startRoom
-        int roomNumber = hostModel.startRoom(host,6100);
-        if (roomNumber<0)
-            System.out.println("test startRoom failed");
-        else {
-            System.out.println("test startRoom success");
-        }
-        if (!guestModel1.joinGameAsGuest(roomNumber, hostPort, guest1))
-            System.out.println("test joinGameAsGuest failed");
-        else {
-            System.out.println("test joinGameAsGuest success");
-        }
-        hostModel.startGame();
-
-        ArrayList<String> playersList = hostModel.getPlayers();
-
-        // create an action queue to test the functions
-        Queue<String> actionQueue = new ConcurrentLinkedQueue<>();
-        // insert actions to the queue
-        actionQueue.add("hello,Right,7,7");
-        actionQueue.add("_ost,Down,7,9");
-        actionQueue.add("_ay,Right,9,9");
-        actionQueue.add("_ell,Down,9,11");
-
-        int n = 2;
-        int j = 0;
-        while (j<n)
-        {
-            j++;
-            // use a loop to test tryWord and tryWordAsGuest, by the order of the players list.
-            for (int i = 0; i < playersList.size(); i++) {
-                String player = playersList.get(i);
-                String action = actionQueue.poll();
-                // parse the action
-                String[] args1 = action.split(",");
-                String word = args1[0];
-                boolean isRight = args1[1].equals("Right");
-                int row = Integer.parseInt(args1[2]);
-                int col = Integer.parseInt(args1[3]);
-                if (player.equals(host))
-                {
-                    // test tryWord
-                    Result result = hostModel.tryWord(word, isRight, new int[]{row, col}, host);
-                    //System.out.println("score: " + result.score + ", errorType: " + result.errorType);
-                    if (result.score == 0 && result.errorType != ErrorType.SUCCESS)
-                        System.out.println("test tryWord failed");
-                    else {
-                        System.out.println("test tryWord success");
-                    }
-                }
-                else if (player.equals(guest1))
-                {
-                    // test tryWordAsGuest
-                    Result result1 = guestModel1.tryWordAsGuest(word, isRight, new int[]{row, col}, guest1);
-                    //System.out.println("score: " + result1.score + ", errorType: " + result1.errorType);
-                    if (result1.score == 0 && result1.errorType != ErrorType.SUCCESS)
-                        System.out.println("test tryWordAsGuest failed");
-                    else {
-                        System.out.println("test tryWordAsGuest success");
-                    }
-                }
-            }
-
-        }
-
-        System.out.println("done!");
-
-    }
-
+    // Skip turn
     public void skipTurn() {
-        // check if it is the player's turn
-        if(!me.equals(players.get(curPlayerIndex))){
-            return;
-        }
         if(isHost){
             nextPlayer();
         }
@@ -977,7 +839,6 @@ public class Model extends Observable{
             outToServer.println("skip," + me);
             outToServer.flush();
         }
-
     }
 
     public ArrayList<String> getPlayers() {
@@ -988,6 +849,7 @@ public class Model extends Observable{
         testMode = true;
     }
 
+    // Save the game in DB
     public void saveGameVM(){
         if(isHost){
             saveGame();
@@ -997,6 +859,7 @@ public class Model extends Observable{
         }
     }
 
+    // Save the game in DB for host
     public void saveGame(){
         assert isHost;
         // Send the word to the server
@@ -1049,9 +912,9 @@ public class Model extends Observable{
         String numPlayers = "" + players.size();
 
         String response = sendOnPort("S,"+names+","+scores+","+hands+","+boardStr+","+currentPlayer+","+numPlayers+","+this.roomNumber, port);
-
     }
 
+    // Save the game in DB for guest
     public void saveGameAsGuest(){
         assert !isHost;
         // Send the word to the server
@@ -1059,30 +922,18 @@ public class Model extends Observable{
         outToServer.flush();
     }
 
+    // Load the game from DB
     public void loadGame(String name, int roomNum, int port){
     	isLoadGame = true;
-        // Check if the game is in the correct state
-        // if(gameState != GameState.Idle){
-        //     return -1;
-        // }
         gameState = GameState.WAITING_FOR_PLAYERS;
-        // try{
-        //     this.socket=new Socket("localhost", port);
-        //     this.outToServer=new PrintWriter(socket.getOutputStream());
-        //     this.inFromServer=new Scanner(socket.getInputStream());
-        // }catch (Exception e){
-        //     //System.out.println("startRoom: Could not connect to server");
-        // }
         // Generate a random room number
         this.roomNumber = roomNumber;
         this.isHost = true;
         startServer(port);
         me = name;
 
-        String response = sendOnPort("L,"+roomNum, port); // TODO: return in models format
-        
-        System.out.println(response);
-        
+        String response = sendOnPort("L,"+roomNum, port);
+                
         String[] args = response.split(",");
         int numPlayers = Integer.parseInt(args[args.length-1]);
         ArrayList<String> names = new ArrayList<String>();
@@ -1175,6 +1026,102 @@ public class Model extends Observable{
         // notify view, we need to support this update on view side
         setChanged();
         notifyObservers("loadGame,"+me+","+playerScores.get(me)+","+hands.get(players.indexOf(me))+","+boardStr+","+isPlayerTurn);
+    }
 
+
+    // Unit tests, to test the functions in the class
+    public static void main(String[] args) {
+        int serverPort = 6200;
+        int hostPort = 6100;
+        String host = "host";
+        String guest1 = "guest1";
+        Model hostModel = new Model(serverPort);
+        Model guestModel1 = new Model(hostPort);
+
+        // create observers
+        Observer hostView = new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+            }
+        };
+
+        Observer guestView1 = new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+            }
+        };
+
+        // add the observables to the observers
+        hostModel.addObserver(hostView);
+        guestModel1.addObserver(guestView1);
+
+        hostModel.setTestMode();
+        guestModel1.setTestMode();
+
+        // test startRoom
+        int roomNumber = hostModel.startRoom(host,6100);
+        if (roomNumber<0)
+            System.out.println("test startRoom failed");
+        else {
+            System.out.println("test startRoom success");
+        }
+        if (!guestModel1.joinGameAsGuest(roomNumber, hostPort, guest1))
+            System.out.println("test joinGameAsGuest failed");
+        else {
+            System.out.println("test joinGameAsGuest success");
+        }
+        hostModel.startGame();
+
+        ArrayList<String> playersList = hostModel.getPlayers();
+
+        // create an action queue to test the functions
+        Queue<String> actionQueue = new ConcurrentLinkedQueue<>();
+        // insert actions to the queue
+        actionQueue.add("hello,Right,7,7");
+        actionQueue.add("_ost,Down,7,9");
+        actionQueue.add("_ay,Right,9,9");
+        actionQueue.add("_ell,Down,9,11");
+
+        int n = 2;
+        int j = 0;
+        while (j<n)
+        {
+            j++;
+            // use a loop to test tryWord and tryWordAsGuest, by the order of the players list.
+            for (int i = 0; i < playersList.size(); i++) {
+                String player = playersList.get(i);
+                String action = actionQueue.poll();
+                // parse the action
+                String[] args1 = action.split(",");
+                String word = args1[0];
+                boolean isRight = args1[1].equals("Right");
+                int row = Integer.parseInt(args1[2]);
+                int col = Integer.parseInt(args1[3]);
+                if (player.equals(host))
+                {
+                    // test tryWord
+                    Result result = hostModel.tryWord(word, isRight, new int[]{row, col}, host);
+                    if (result.score == 0 && result.errorType != ErrorType.SUCCESS)
+                        System.out.println("test tryWord failed");
+                    else {
+                        System.out.println("test tryWord success");
+                    }
+                }
+                else if (player.equals(guest1))
+                {
+                    // test tryWordAsGuest
+                    Result result1 = guestModel1.tryWordAsGuest(word, isRight, new int[]{row, col}, guest1);
+                    if (result1.score == 0 && result1.errorType != ErrorType.SUCCESS)
+                        System.out.println("test tryWordAsGuest failed");
+                    else {
+                        System.out.println("test tryWordAsGuest success");
+                    }
+                }
+            }
+        }
+
+        System.out.println("done!");
     }
 }
+
+    

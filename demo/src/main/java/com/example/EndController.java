@@ -36,6 +36,7 @@ public class EndController {
     @FXML
     BorderPane rootPane;
 
+    // Initializes the controller class.
     public void init(ViewModel vm) {
         this.vm = vm;
 
@@ -56,16 +57,14 @@ public class EndController {
     }
        
     public void start(String name, String score){
-
     }
 
     @FXML
     private void endGameOnAction() throws IOException {
-
        System.exit(0);
     }
     
-    
+    // Ends the game and displays the score
     public void endGame(String name, String score) throws IOException {
         App.setRoot("gameOver");
         App.stage.setScene(App.scene4);

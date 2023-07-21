@@ -27,19 +27,15 @@ public class SecondaryController {
     @FXML
     ImageView waitingImage;
     
+    // Initializes the controller class.
     public void init(ViewModel vm) {
         this.vm = vm;
 
-        // Bind with roomNumLabel in vm
-        // roomNumLabel.textProperty().bind(vm.roomNumLabel);
         startGameButton.managedProperty().bind(startGameButton.visibleProperty());
         startGameButton.setVisible(false);
-                 
 
-        // Check why doesn't work
         try {
             String root = System.getProperty("user.dir")+"\\src\\main\\";
-            //System.out.println(root);
             InputStream stream = new FileInputStream(root+"resources\\Images\\waiting.JPG");            
             Image image = new Image(stream);
             waitingImage.setImage(image);
@@ -50,7 +46,6 @@ public class SecondaryController {
 
     @FXML
     private void switchToPrimary() throws IOException {
-
         vm.startGame();
         App.setRoot("primary");
         App.stage.setScene(App.scene1);

@@ -24,9 +24,8 @@ public class GameData implements Serializable {
 	
 	// Default constructor
 	public GameData() {
-		
-		
 	}
+
 	// Constructor
 	public GameData(ArrayList<String> names, ArrayList<Integer> scores, ArrayList<String> hands, ArrayList<String> board, Integer numPlayers, String currentPlayer, int roomNumber){
 		this.names=names;
@@ -41,7 +40,6 @@ public class GameData implements Serializable {
 	@Override
 	public String toString() {
 		return "GameData [names=" + names + ",currentPlayer="+currentPlayer.toString()+ "]";
-		
 	}
 
 	public Document toDocument( ) {
@@ -97,21 +95,4 @@ public class GameData implements Serializable {
 	public String getCurrentPlayer() {
 		return currentPlayer;
 	}
-
-
-	//public static intListFromDoc()
-	
-//	public MyPlayer(String name) {
-//		this.numbers=new ArrayList<Integer>();
-//		Random rand =new Random();
-//		numbers.add(9);
-//		numbers.add(11);
-//		this.numbers.add((Integer)rand.nextInt());
-//		this.numbers.add((Integer)rand.nextInt());
-//		this.numbers.add((Integer)rand.nextInt());
-//		this.numbers.add((Integer)rand.nextInt());
-//		this.name=name;
-//		objectCounter++;
-//		this.id=objectCounter;
-//	}
 }

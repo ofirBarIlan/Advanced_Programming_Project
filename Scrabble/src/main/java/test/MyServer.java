@@ -23,7 +23,6 @@ public class MyServer {
 	ServerSocket server;
 	ExecutorService executor;
 	ArrayList<Socket> clients = new ArrayList<Socket>();
-
 	
 	// constructor of MyServer
 	public MyServer(int port, ClientHandler ch, int maxThreads) {
@@ -42,7 +41,6 @@ public class MyServer {
 		}		
 		executor = Executors.newFixedThreadPool(this.maxThreads); // the thread pool that will handle the clients (the maximum number of clients that will be handled parallelly is maxThreads)
 		new Thread(()->startsServer()).start(); //start the server's operation in the background (in new thread)
-		System.out.println("game started");
 	}
 	
 	private void startsServer() {
@@ -56,16 +54,13 @@ public class MyServer {
            			connection.setRequestMethod("GET");
 
             // Send the request
-            		//int responseCode = connection.getResponseCode();
 
-					System.out.println("Connection acquired");
 					// handle the client parallelly as a new task of the thread pool
 					executor.execute(()->{
 						try {
 							// create new instance of the client handler
                             Class<? extends ClientHandler> clientHandlerClass = this.ch.getClass();
                             ClientHandler currCh = clientHandlerClass.getDeclaredConstructor().newInstance();
-							//System.out.println("my server");
 							clients.add(client); // add the client to the clients list (for the notifyGuests method)
                             currCh.handleClient(client.getInputStream(), client.getOutputStream()); // handle the client
 							clients.remove(client); // remove the client from the clients list (for the notifyGuests method)
@@ -121,7 +116,6 @@ public class MyServer {
 		for(Socket client : clients) {
 			try {
 				PrintWriter outToClient = new PrintWriter(client.getOutputStream());
-				//System.out.println("notifyGuests: " + message);
 				outToClient.println(message);
 				outToClient.flush();
 			} catch (IOException e) {
@@ -129,5 +123,4 @@ public class MyServer {
 			}
 		}
 	}
-
 }

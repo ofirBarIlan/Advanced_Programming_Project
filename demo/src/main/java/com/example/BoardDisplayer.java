@@ -92,10 +92,12 @@ public class BoardDisplayer extends Canvas {
         BoardData = boardData;
         redraw();
     }
+    // Getter for BoardData
     public int[][] getBoardData(){
         return BoardData;
     }
 
+    // Redraw the board
     public void redraw(){
         if(BoardData != null)
         {
@@ -107,7 +109,6 @@ public class BoardDisplayer extends Canvas {
             // To draw on canvas. 
             // getGraphicsContext2D is from Canvas
             GraphicsContext gc = getGraphicsContext2D();
-            
                            
             // Draw wherever there is 0
             for(int i=0; i<BoardData.length; i++){

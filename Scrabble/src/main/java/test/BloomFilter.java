@@ -16,8 +16,7 @@ public class BloomFilter {
 		this.algs=algs;
 		bs=new BitSet(size);
 		this.size=size;
-	}
-	
+	}	
 	
 	public void add(String word) {
 		for(String alg : algs)
@@ -51,8 +50,4 @@ public class BloomFilter {
 			sb.append(bs.get(i)?"1":"0");
 		return sb.toString();
 	}
-	
-	
-
-
 }
